@@ -1,0 +1,1 @@
+Lab 4: Lab using an external ROTC timer to simulate a real clock, programming to flash an alarm exactly one minute after pressing User BTN, using Eeprom write and read functions to store data throughot power cycles for later use. 

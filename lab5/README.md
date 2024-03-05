@@ -1,0 +1,1 @@
+Lab 5: Interface with OV7670 camera, take photos and send to UART for display on computer's serial monitor, use various tactics to improve FPS such as truncation, run length encoding, computing deltas between frames, etc. 

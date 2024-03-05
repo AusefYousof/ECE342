@@ -1,0 +1,1 @@
+Lab 3: Investigate differences in generating a wave using various means such as manually computing sin(x) each point, saving a LUT of sin values, and so on. Using the LUT, generate various types of waves such as sawtooth, triangular, and square waves. Generate a square wave using fixed point arithmetic/values.
