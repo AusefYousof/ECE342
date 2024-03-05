@@ -28,6 +28,8 @@
   * @brief  The application entry point.
   * @retval int
   */
+
+ //NOTE: Only achieved a 17/20 on this lab as the output needed more sanitzation
 	
 #define LUT_SIZE 628
 
