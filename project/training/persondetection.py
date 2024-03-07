@@ -35,13 +35,13 @@ train_dataset = torchvision.datasets.ImageFolder(dataset_path + r'\train', trans
 val_dataset = torchvision.datasets.ImageFolder(dataset_path + r'\val', transform=transform)
 test_dataset = torchvision.datasets.ImageFolder(dataset_path + r'\test', transform=transform)
 
+
 total = len(train_dataset)+len(val_dataset)+len(test_dataset)
 perc_train = str(round(len(train_dataset)/total * 100,2))
 perc_val = str(round(len(val_dataset)/total * 100,2))
 perc_test = str(round(len(test_dataset)/total * 100,2))
 print("Testing Data is:", perc_train + "% train,", perc_val + "% validation,", perc_test + "% test\n") 
 #looking for about a 75 - 12.5 - 12.5 percent split
-
 
 
 alexnet = torchvision.models.alexnet(weights=AlexNet_Weights.DEFAULT)
@@ -146,6 +146,9 @@ def get_accuracy_ALEX(model, batch_size, train=False):
         correct += pred.eq(labels.view_as(pred)).sum().item()
         total += imgs.shape[0]
     return correct / total
+
+
+
 trainpath = "C:\\Users\\Ausef Yousof\\OneDrive\\Documents\\ECE YEAR 3 SEM 2\\ECE342\\project\\training"
 def train_ALEX(model, data, batch_size=64, learning_rate=0.05, num_epochs=25):
     torch.manual_seed(1000)
@@ -184,13 +187,21 @@ def train_ALEX(model, data, batch_size=64, learning_rate=0.05, num_epochs=25):
         val_acc.append(get_accuracy_ALEX(model, batch_size=batch_size, train=False))  # compute validation accuracy
 
         # Save the current model (checkpoint) to a file
-        model_path = get_model_name(model.name, batch_size, learning_rate, epoch)
-        model_path = os.path.join(trainpath, model_path)
-        torch.save(model.state_dict(), model_path)
+        #model_path = get_model_name(model.name, batch_size, learning_rate, epoch)
+        #model_path = os.path.join(trainpath, model_path)
+        #torch.save(model.state_dict(), model_path)
+
+    
+
     print('Finished Training')
     end_time = time.time()
     elapsed_time = end_time - start_time
     print("Total time elapsed: {:.2f} seconds".format(elapsed_time))
+
+    #save the model
+    file_path = os.path.join(trainpath,model.name)
+    torch.save(model, file_path)
+
 
     # Plotting
     plt.title("Training Curve")
@@ -215,4 +226,56 @@ def train_ALEX(model, data, batch_size=64, learning_rate=0.05, num_epochs=25):
 model = CustomAlexNet()
 
 #first training with parameters listed above
-train_ALEX(model, train_features, batch_size=128, learning_rate=0.01, num_epochs=5)
+#train_ALEX(model, train_features, batch_size=32, learning_rate=0.01, num_epochs=15)
+#dont run if already trained and saved a model
+
+
+
+load_model = torch.load('C:/Users/Ausef Yousof/OneDrive/Documents/ECE YEAR 3 SEM 2/ECE342/project/training/CustomAlexNet')
+model.eval()
+print("done")
+
+
+
+
+
+
+
+#demoing model
+
+
+demo_dataset = torchvision.datasets.ImageFolder('C:/Users/Ausef Yousof/OneDrive/Documents/ECE YEAR 3 SEM 2/ECE342/project/training/demoimages', transform=transform)
+
+#extract test images features
+def alex_features_demo(data="demo"):
+    data_loader = torch.utils.data.DataLoader(demo_dataset, batch_size=1, shuffle=True)
+
+
+    #iterate through loaded data, save alex net features
+    n = 0
+    for imgs, labels in iter(data_loader):
+        features = alexnet.features(imgs)
+        features_tensor = torch.from_numpy(features.detach().numpy())
+        torch.save(features_tensor.squeeze(0), path + '\\'+ "demo" + '\\' + classes[labels] + '\\' + 'feature_bs1_' + str(n) + '.tensor')
+        n += 1
+
+#get demo image features for input to model
+alex_features_demo()
+
+demo_features = torchvision.datasets.DatasetFolder(path + "\\demo", loader=torch.load,
+                                                    extensions=('.tensor'))
+
+demo_loader = torch.utils.data.DataLoader(demo_features, batch_size=1, shuffle=True)
+
+for imgs, labels in iter(demo_loader):
+        
+    with torch.no_grad():
+        print("Ground truth:", labels)
+        print("\n")
+        output = load_model(imgs)
+        probabilities = F.softmax(output, dim=1)
+        predicted_class = torch.argmax(probabilities, dim=1)
+
+        print("Predicted class:", predicted_class.item())
+
+#print(output)

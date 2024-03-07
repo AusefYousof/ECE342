@@ -1,1 +1,1 @@
-Lab 6: Interface with OV7670 camera, take photos and send to UART for display on computer's serial monitor, send photos to a convolutional neural network designed to detect if a person is in the photo.
+Course Project: Interface with OV7670 camera, take photos and send to UART for display on computer's serial monitor, send photos to a convolutional neural network designed to detect if a person is in the photo.
