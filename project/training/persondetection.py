@@ -225,23 +225,18 @@ def train_ALEX(model, data, batch_size=64, learning_rate=0.05, num_epochs=25):
 
 model = CustomAlexNet()
 
-#first training with parameters listed above
-#train_ALEX(model, train_features, batch_size=32, learning_rate=0.01, num_epochs=15)
+#Generating The Model
+train_ALEX(model, train_features, batch_size=32, learning_rate=0.03, num_epochs=20)
 #dont run if already trained and saved a model
 
 
 
 load_model = torch.load('C:/Users/Ausef Yousof/OneDrive/Documents/ECE YEAR 3 SEM 2/ECE342/project/training/CustomAlexNet')
 model.eval()
-print("done")
 
 
 
 
-
-
-
-#demoing model
 
 
 demo_dataset = torchvision.datasets.ImageFolder('C:/Users/Ausef Yousof/OneDrive/Documents/ECE YEAR 3 SEM 2/ECE342/project/training/demoimages', transform=transform)
