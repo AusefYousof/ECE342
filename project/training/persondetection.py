@@ -28,8 +28,8 @@ transform = transforms.Compose([
 
 
 
-dataset_path = r"C:\Users\Ausef Yousof\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\human detection dataset"  
-
+#dataset_path = r"C:\Users\Ausef Yousof\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\human detection dataset"  
+dataset_path = r"C:\Users\ausef\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\human detection dataset"  
 
 train_dataset = torchvision.datasets.ImageFolder(dataset_path + r'\train', transform=transform)
 val_dataset = torchvision.datasets.ImageFolder(dataset_path + r'\val', transform=transform)
@@ -62,7 +62,8 @@ def get_model_name(name, batch_size, learning_rate, epoch):
 #define our classes (traffic signals)
 classes = ['0', '1']
 
-path = r"C:\Users\Ausef Yousof\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\AlexNet\Features"
+#path = r"C:\Users\Ausef Yousof\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\AlexNet\Features"
+path = r"C:\Users\ausef\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\AlexNet\Features"
 
 #function to extract alexnet features from our data, save to folder.
 def alex_features(data):
@@ -80,7 +81,7 @@ def alex_features(data):
     for imgs, labels in iter(data_loader):
         features = alexnet.features(imgs)
         features_tensor = torch.from_numpy(features.detach().numpy())
-        torch.save(features_tensor.squeeze(0), path + '\\'+ data + '\\' + classes[labels] + '\/' + 'feature_bs1_' + str(n) + '.tensor')
+        torch.save(features_tensor.squeeze(0), path + '\\'+ data + '\\' + classes[labels] + '\\' + 'feature_bs1_' + str(n) + '.tensor')
         n += 1
 
 #get features
@@ -149,7 +150,8 @@ def get_accuracy_ALEX(model, batch_size, train=False):
 
 
 
-trainpath = "C:\\Users\\Ausef Yousof\\OneDrive\\Documents\\ECE YEAR 3 SEM 2\\ECE342\\project\\training"
+#trainpath = "C:\\Users\\Ausef Yousof\\OneDrive\\Documents\\ECE YEAR 3 SEM 2\\ECE342\\project\\training"
+trainpath = r"C:\Users\ausef\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\training"
 def train_ALEX(model, data, batch_size=64, learning_rate=0.05, num_epochs=25):
     torch.manual_seed(1000)
     train_loader = torch.utils.data.DataLoader(data, batch_size=batch_size, shuffle=True)
@@ -226,20 +228,21 @@ def train_ALEX(model, data, batch_size=64, learning_rate=0.05, num_epochs=25):
 model = CustomAlexNet()
 
 #Generating The Model
-train_ALEX(model, train_features, batch_size=32, learning_rate=0.03, num_epochs=20)
+#train_ALEX(model, train_features, batch_size=32, learning_rate=0.03, num_epochs=20)
 #dont run if already trained and saved a model
 
-
-
-load_model = torch.load('C:/Users/Ausef Yousof/OneDrive/Documents/ECE YEAR 3 SEM 2/ECE342/project/training/CustomAlexNet')
+#loadpath = r"""
+loadpath = r"C:\Users\ausef\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\training\CustomAlexNet"
+load_model = torch.load(loadpath)
 model.eval()
 
 
 
 
 
-
-demo_dataset = torchvision.datasets.ImageFolder('C:/Users/Ausef Yousof/OneDrive/Documents/ECE YEAR 3 SEM 2/ECE342/project/training/demoimages', transform=transform)
+#demopath = r""
+demopath = r"C:\Users\ausef\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\training\demoimages"
+demo_dataset = torchvision.datasets.ImageFolder(demopath, transform=transform)
 
 #extract test images features
 def alex_features_demo(data="demo"):
