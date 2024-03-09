@@ -28,19 +28,19 @@ transform = transforms.Compose([
 
 
 
-#dataset_path = r"C:\Users\Ausef Yousof\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\human detection dataset"  
-dataset_path = r"C:\Users\ausef\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\human detection dataset"  
+dataset_path =  r'human detection dataset'
 
 train_dataset = torchvision.datasets.ImageFolder(dataset_path + r'\train', transform=transform)
 val_dataset = torchvision.datasets.ImageFolder(dataset_path + r'\val', transform=transform)
 test_dataset = torchvision.datasets.ImageFolder(dataset_path + r'\test', transform=transform)
 
+print(train_dataset[0])
 
 total = len(train_dataset)+len(val_dataset)+len(test_dataset)
 perc_train = str(round(len(train_dataset)/total * 100,2))
 perc_val = str(round(len(val_dataset)/total * 100,2))
 perc_test = str(round(len(test_dataset)/total * 100,2))
-print("Testing Data is:", perc_train + "% train,", perc_val + "% validation,", perc_test + "% test\n") 
+#print("Testing Data is:", perc_train + "% train,", perc_val + "% validation,", perc_test + "% test\n") 
 #looking for about a 75 - 12.5 - 12.5 percent split
 
 
@@ -62,8 +62,7 @@ def get_model_name(name, batch_size, learning_rate, epoch):
 #define our classes (traffic signals)
 classes = ['0', '1']
 
-#path = r"C:\Users\Ausef Yousof\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\AlexNet\Features"
-path = r"C:\Users\ausef\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\AlexNet\Features"
+path = r'AlexNet\Features'
 
 #function to extract alexnet features from our data, save to folder.
 def alex_features(data):
@@ -150,8 +149,8 @@ def get_accuracy_ALEX(model, batch_size, train=False):
 
 
 
-#trainpath = "C:\\Users\\Ausef Yousof\\OneDrive\\Documents\\ECE YEAR 3 SEM 2\\ECE342\\project\\training"
-trainpath = r"C:\Users\ausef\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\training"
+trainpath = "training"
+
 def train_ALEX(model, data, batch_size=64, learning_rate=0.05, num_epochs=25):
     torch.manual_seed(1000)
     train_loader = torch.utils.data.DataLoader(data, batch_size=batch_size, shuffle=True)
@@ -231,8 +230,8 @@ model = CustomAlexNet()
 #train_ALEX(model, train_features, batch_size=32, learning_rate=0.03, num_epochs=20)
 #dont run if already trained and saved a model
 
-#loadpath = r"""
-loadpath = r"C:\Users\ausef\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\training\CustomAlexNet"
+loadpath = r"training\CustomAlexNet"
+
 load_model = torch.load(loadpath)
 model.eval()
 
@@ -241,7 +240,7 @@ model.eval()
 
 
 #demopath = r""
-demopath = r"C:\Users\ausef\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\training\demoimages"
+demopath = r"training\demoimages"
 demo_dataset = torchvision.datasets.ImageFolder(demopath, transform=transform)
 
 #extract test images features
