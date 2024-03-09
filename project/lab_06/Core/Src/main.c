@@ -299,7 +299,7 @@ int main(void)
 		///////////////// PART 4.2  - CTS IMAGE SEND////////////
 		//already in while 1:
 		//uart with dma only (for table)
-		//send_image();
+		send_image();
 		
 		///////////////////// PART 4.2 END ///////////////////////
 		
@@ -322,7 +322,7 @@ int main(void)
 		
 		
 		//IF WE ARE ON FIRST FRAME OR EVERY N FRAMES WE SEND A START FRAME
-		
+		/*
 		if (frame_count == 1 || frame_count % FULL_FRAME_INTERVAL == 0){
 			trunc_rle();
 		}
@@ -330,6 +330,7 @@ int main(void)
 		else {
 			send_delta();
 		}
+		*/
 		
 
 		/////////////////// PART 7 END //////////////////////////

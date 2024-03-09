@@ -97,7 +97,7 @@ Section Cross References
     main.o(.text.send_image) refers to main.o(.bss.tx_buff) for tx_buff
     main.o(.text.send_image) refers to main.o(.data.snapshot_length) for snapshot_length
     main.o(.text.send_image) refers to main.o(.bss.snapshot_buff) for snapshot_buff
-    main.o(.text.send_image) refers to main.o(.bss.tx_buff_len) for tx_buff_len
+    main.o(.text.send_image) refers to main.o(.bss..L_MergedGlobals) for .L_MergedGlobals
     main.o(.text.send_image) refers to config.o(.bss.hdcmi) for hdcmi
     main.o(.text.send_image) refers to stm32f4xx_hal_dcmi.o(.text.HAL_DCMI_Resume) for HAL_DCMI_Resume
     main.o(.text.send_image) refers to config.o(.text.uart_send_bin) for uart_send_bin
@@ -105,7 +105,7 @@ Section Cross References
     main.o(.text.send_trunc) refers to main.o(.bss.tx_buff) for tx_buff
     main.o(.text.send_trunc) refers to main.o(.data.snapshot_length) for snapshot_length
     main.o(.text.send_trunc) refers to main.o(.bss.snapshot_buff) for snapshot_buff
-    main.o(.text.send_trunc) refers to main.o(.bss.tx_buff_len) for tx_buff_len
+    main.o(.text.send_trunc) refers to main.o(.bss..L_MergedGlobals) for .L_MergedGlobals
     main.o(.text.send_trunc) refers to config.o(.bss.hdcmi) for hdcmi
     main.o(.text.send_trunc) refers to stm32f4xx_hal_dcmi.o(.text.HAL_DCMI_Resume) for HAL_DCMI_Resume
     main.o(.text.send_trunc) refers to config.o(.text.uart_send_bin) for uart_send_bin
@@ -143,9 +143,12 @@ Section Cross References
     main.o(.text.main) refers to main.o(.bss.snapshot_buff) for snapshot_buff
     main.o(.text.main) refers to ov7670.o(.text.ov7670_capture) for ov7670_capture
     main.o(.text.main) refers to main.o(.bss..L_MergedGlobals) for .L_MergedGlobals
-    main.o(.text.main) refers to main.o(.text.send_delta) for send_delta
+    main.o(.text.main) refers to main.o(.bss.tx_buff) for tx_buff
+    main.o(.text.main) refers to config.o(.bss.hdcmi) for hdcmi
+    main.o(.text.main) refers to stm32f4xx_hal_dcmi.o(.text.HAL_DCMI_Resume) for HAL_DCMI_Resume
+    main.o(.text.main) refers to config.o(.text.uart_send_bin) for uart_send_bin
     main.o(.text.main) refers to ov7670.o(.text.ov7670_snapshot) for ov7670_snapshot
-    main.o(.text.main) refers to main.o(.text.trunc_rle) for trunc_rle
+    main.o(.text.main) refers to main.o(.data.snapshot_length) for snapshot_length
     main.o(.ARM.exidx.text.main) refers to main.o(.text.main) for [Anonymous Symbol]
     main.o(.ARM.exidx.text.print_buf) refers to main.o(.text.print_buf) for [Anonymous Symbol]
     stm32f4xx_it.o(.ARM.exidx.text.NMI_Handler) refers to stm32f4xx_it.o(.text.NMI_Handler) for [Anonymous Symbol]
@@ -1377,13 +1380,16 @@ Removing Unused input sections from the image.
     Removing main.o(.ARM.exidx.text.send_image), (8 bytes).
     Removing main.o(.text.send_trunc), (348 bytes).
     Removing main.o(.ARM.exidx.text.send_trunc), (8 bytes).
+    Removing main.o(.text.trunc_rle), (616 bytes).
     Removing main.o(.ARM.exidx.text.trunc_rle), (8 bytes).
+    Removing main.o(.text.send_delta), (598 bytes).
     Removing main.o(.ARM.exidx.text.send_delta), (8 bytes).
     Removing main.o(.ARM.exidx.text.main), (8 bytes).
     Removing main.o(.text.print_buf), (2 bytes).
     Removing main.o(.ARM.exidx.text.print_buf), (8 bytes).
-    Removing main.o(.bss.tx_buff_len), (4 bytes).
+    Removing main.o(.bss.frame_count), (4 bytes).
     Removing main.o(.rodata.str1.4), (32 bytes).
+    Removing main.o(.bss.old_snapshot_buff), (25056 bytes).
     Removing main.o(.ARM.use_no_argv), (4 bytes).
     Removing stm32f4xx_it.o(.text), (0 bytes).
     Removing stm32f4xx_it.o(.ARM.exidx.text.NMI_Handler), (8 bytes).
@@ -2454,7 +2460,7 @@ Removing Unused input sections from the image.
     Removing system_stm32f4xx.o(.text.SystemCoreClockUpdate), (134 bytes).
     Removing system_stm32f4xx.o(.ARM.exidx.text.SystemCoreClockUpdate), (8 bytes).
 
-1103 unused section(s) (total 72032 bytes) removed from the image.
+1106 unused section(s) (total 98302 bytes) removed from the image.
 
 ==============================================================================
 
@@ -2732,26 +2738,24 @@ Image Symbol Table
     [Anonymous Symbol]                       0x08004f80   Section        0  stm32f4xx_ll_usb.o(.text.USB_SetCurrentMode)
     [Anonymous Symbol]                       0x08004fe4   Section        0  stm32f4xx_it.o(.text.UsageFault_Handler)
     [Anonymous Symbol]                       0x08004fe8   Section        0  main.o(.text.main)
-    [Anonymous Symbol]                       0x08005090   Section        0  ov7670.o(.text.ov7670_capture)
-    [Anonymous Symbol]                       0x080050b4   Section        0  ov7670.o(.text.ov7670_init)
-    [Anonymous Symbol]                       0x08005158   Section        0  ov7670.o(.text.ov7670_snapshot)
-    [Anonymous Symbol]                       0x0800517c   Section        0  main.o(.text.send_delta)
-    [Anonymous Symbol]                       0x080053d4   Section        0  main.o(.text.trunc_rle)
-    [Anonymous Symbol]                       0x0800563c   Section        0  config.o(.text.uart_send_bin)
-    $v0                                      0x0800564e   Number         0  fpinit.o(x$fpl$fpinit)
-    x$fpl$fpinit                             0x0800564e   Section       26  fpinit.o(x$fpl$fpinit)
-    DMA_CalcBaseAndBitshift.flagBitshiftOffset 0x08005774   Data           8  stm32f4xx_hal_dma.o(.rodata.cst8)
-    [Anonymous Symbol]                       0x08005774   Section        0  stm32f4xx_hal_dma.o(.rodata.cst8)
+    [Anonymous Symbol]                       0x08005184   Section        0  ov7670.o(.text.ov7670_capture)
+    [Anonymous Symbol]                       0x080051a8   Section        0  ov7670.o(.text.ov7670_init)
+    [Anonymous Symbol]                       0x0800524c   Section        0  ov7670.o(.text.ov7670_snapshot)
+    [Anonymous Symbol]                       0x08005270   Section        0  config.o(.text.uart_send_bin)
+    $v0                                      0x08005282   Number         0  fpinit.o(x$fpl$fpinit)
+    x$fpl$fpinit                             0x08005282   Section       26  fpinit.o(x$fpl$fpinit)
+    DMA_CalcBaseAndBitshift.flagBitshiftOffset 0x080053a8   Data           8  stm32f4xx_hal_dma.o(.rodata.cst8)
+    [Anonymous Symbol]                       0x080053a8   Section        0  stm32f4xx_hal_dma.o(.rodata.cst8)
     .L_MergedGlobals                         0x20000000   Data           8  stm32f4xx_hal.o(.data..L_MergedGlobals)
     [Anonymous Symbol]                       0x20000000   Section        0  stm32f4xx_hal.o(.data..L_MergedGlobals)
     .bss                                     0x20000010   Section       96  libspace.o(.bss)
     .L_MergedGlobals                         0x20000070   Data           8  main.o(.bss..L_MergedGlobals)
     [Anonymous Symbol]                       0x20000070   Section        0  main.o(.bss..L_MergedGlobals)
-    Heap_Mem                                 0x2001f138   Data         512  startup_stm32f446xx.o(HEAP)
-    HEAP                                     0x2001f138   Section      512  startup_stm32f446xx.o(HEAP)
-    Stack_Mem                                0x2001f338   Data        1024  startup_stm32f446xx.o(STACK)
-    STACK                                    0x2001f338   Section     1024  startup_stm32f446xx.o(STACK)
-    __initial_sp                             0x2001f738   Data           0  startup_stm32f446xx.o(STACK)
+    Heap_Mem                                 0x20018f58   Data         512  startup_stm32f446xx.o(HEAP)
+    HEAP                                     0x20018f58   Section      512  startup_stm32f446xx.o(HEAP)
+    Stack_Mem                                0x20019158   Data        1024  startup_stm32f446xx.o(STACK)
+    STACK                                    0x20019158   Section     1024  startup_stm32f446xx.o(STACK)
+    __initial_sp                             0x20019558   Data           0  startup_stm32f446xx.o(STACK)
 
     Global Symbols
 
@@ -3042,21 +3046,19 @@ Image Symbol Table
     USB_DisableGlobalInt                     0x08004f71   Thumb Code    14  stm32f4xx_ll_usb.o(.text.USB_DisableGlobalInt)
     USB_SetCurrentMode                       0x08004f81   Thumb Code   100  stm32f4xx_ll_usb.o(.text.USB_SetCurrentMode)
     UsageFault_Handler                       0x08004fe5   Thumb Code     2  stm32f4xx_it.o(.text.UsageFault_Handler)
-    main                                     0x08004fe9   Thumb Code   166  main.o(.text.main)
-    ov7670_capture                           0x08005091   Thumb Code    36  ov7670.o(.text.ov7670_capture)
-    ov7670_init                              0x080050b5   Thumb Code   164  ov7670.o(.text.ov7670_init)
-    ov7670_snapshot                          0x08005159   Thumb Code    36  ov7670.o(.text.ov7670_snapshot)
-    send_delta                               0x0800517d   Thumb Code   598  main.o(.text.send_delta)
-    trunc_rle                                0x080053d5   Thumb Code   616  main.o(.text.trunc_rle)
-    uart_send_bin                            0x0800563d   Thumb Code    18  config.o(.text.uart_send_bin)
-    _fp_init                                 0x0800564f   Thumb Code    26  fpinit.o(x$fpl$fpinit)
-    __fplib_config_fpu_vfp                   0x08005667   Thumb Code     0  fpinit.o(x$fpl$fpinit)
-    __fplib_config_pureend_doubles           0x08005667   Thumb Code     0  fpinit.o(x$fpl$fpinit)
-    AHBPrescTable                            0x08005668   Data          16  system_stm32f4xx.o(.rodata.AHBPrescTable)
-    APBPrescTable                            0x08005678   Data           8  system_stm32f4xx.o(.rodata.APBPrescTable)
-    OV7670_reg                               0x08005680   Data         244  ov7670.o(.rodata.OV7670_reg)
-    Region$$Table$$Base                      0x0800577c   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x0800579c   Number         0  anon$$obj.o(Region$$Table)
+    main                                     0x08004fe9   Thumb Code   410  main.o(.text.main)
+    ov7670_capture                           0x08005185   Thumb Code    36  ov7670.o(.text.ov7670_capture)
+    ov7670_init                              0x080051a9   Thumb Code   164  ov7670.o(.text.ov7670_init)
+    ov7670_snapshot                          0x0800524d   Thumb Code    36  ov7670.o(.text.ov7670_snapshot)
+    uart_send_bin                            0x08005271   Thumb Code    18  config.o(.text.uart_send_bin)
+    _fp_init                                 0x08005283   Thumb Code    26  fpinit.o(x$fpl$fpinit)
+    __fplib_config_fpu_vfp                   0x0800529b   Thumb Code     0  fpinit.o(x$fpl$fpinit)
+    __fplib_config_pureend_doubles           0x0800529b   Thumb Code     0  fpinit.o(x$fpl$fpinit)
+    AHBPrescTable                            0x0800529c   Data          16  system_stm32f4xx.o(.rodata.AHBPrescTable)
+    APBPrescTable                            0x080052ac   Data           8  system_stm32f4xx.o(.rodata.APBPrescTable)
+    OV7670_reg                               0x080052b4   Data         244  ov7670.o(.rodata.OV7670_reg)
+    Region$$Table$$Base                      0x080053b0   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x080053d0   Number         0  anon$$obj.o(Region$$Table)
     uwTickFreq                               0x20000000   Data           1  stm32f4xx_hal.o(.data..L_MergedGlobals)
     uwTickPrio                               0x20000004   Data           4  stm32f4xx_hal.o(.data..L_MergedGlobals)
     SystemCoreClock                          0x20000008   Data           4  system_stm32f4xx.o(.data.SystemCoreClock)
@@ -3064,7 +3066,7 @@ Image Symbol Table
     __libspace_start                         0x20000010   Data          96  libspace.o(.bss)
     __temporary_stack_top$libspace           0x20000070   Data           0  libspace.o(.bss)
     dma_flag                                 0x20000070   Data           1  main.o(.bss..L_MergedGlobals)
-    frame_count                              0x20000074   Data           4  main.o(.bss..L_MergedGlobals)
+    tx_buff_len                              0x20000074   Data           4  main.o(.bss..L_MergedGlobals)
     hdcmi                                    0x20000078   Data          80  config.o(.bss.hdcmi)
     hdma_dcmi                                0x200000c8   Data          96  config.o(.bss.hdma_dcmi)
     hdma_usart3_tx                           0x20000128   Data          96  config.o(.bss.hdma_usart3_tx)
@@ -3073,10 +3075,9 @@ Image Symbol Table
     htim1                                    0x200006e8   Data          72  config.o(.bss.htim1)
     htim6                                    0x20000730   Data          72  config.o(.bss.htim6)
     huart3                                   0x20000778   Data          68  config.o(.bss.huart3)
-    old_snapshot_buff                        0x200007bc   Data       25056  main.o(.bss.old_snapshot_buff)
-    snapshot_buff                            0x2000699c   Data       50112  main.o(.bss.snapshot_buff)
-    tx_buff                                  0x20012d5c   Data       50130  main.o(.bss.tx_buff)
-    uwTick                                   0x2001f130   Data           4  stm32f4xx_hal.o(.bss.uwTick)
+    snapshot_buff                            0x200007bc   Data       50112  main.o(.bss.snapshot_buff)
+    tx_buff                                  0x2000cb7c   Data       50130  main.o(.bss.tx_buff)
+    uwTick                                   0x20018f50   Data           4  stm32f4xx_hal.o(.bss.uwTick)
 
 
 
@@ -3086,9 +3087,9 @@ Memory Map of the image
 
   Image Entry point : 0x080001c5
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x000057b0, Max: 0x00080000, ABSOLUTE)
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x000053e0, Max: 0x00080000, ABSOLUTE)
 
-    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x0000579c, Max: 0x00080000, ABSOLUTE)
+    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x000053d0, Max: 0x00080000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -3333,30 +3334,27 @@ Memory Map of the image
     0x08004f80   0x08004f80   0x00000064   Code   RO         1340    .text.USB_SetCurrentMode  stm32f4xx_ll_usb.o
     0x08004fe4   0x08004fe4   0x00000002   Code   RO          106    .text.UsageFault_Handler  stm32f4xx_it.o
     0x08004fe6   0x08004fe6   0x00000002   PAD
-    0x08004fe8   0x08004fe8   0x000000a6   Code   RO           78    .text.main          main.o
-    0x0800508e   0x0800508e   0x00000002   PAD
-    0x08005090   0x08005090   0x00000024   Code   RO           19    .text.ov7670_capture  ov7670.o
-    0x080050b4   0x080050b4   0x000000a4   Code   RO           11    .text.ov7670_init   ov7670.o
-    0x08005158   0x08005158   0x00000024   Code   RO           17    .text.ov7670_snapshot  ov7670.o
-    0x0800517c   0x0800517c   0x00000256   Code   RO           76    .text.send_delta    main.o
-    0x080053d2   0x080053d2   0x00000002   PAD
-    0x080053d4   0x080053d4   0x00000268   Code   RO           74    .text.trunc_rle     main.o
-    0x0800563c   0x0800563c   0x00000012   Code   RO           32    .text.uart_send_bin  config.o
-    0x0800564e   0x0800564e   0x0000001a   Code   RO         1573    x$fpl$fpinit        fz_wm.l(fpinit.o)
-    0x08005668   0x08005668   0x00000010   Data   RO         1441    .rodata.AHBPrescTable  system_stm32f4xx.o
-    0x08005678   0x08005678   0x00000008   Data   RO         1442    .rodata.APBPrescTable  system_stm32f4xx.o
-    0x08005680   0x08005680   0x000000f4   Data   RO           21    .rodata.OV7670_reg  ov7670.o
-    0x08005774   0x08005774   0x00000008   Data   RO          436    .rodata.cst8        stm32f4xx_hal_dma.o
-    0x0800577c   0x0800577c   0x00000020   Data   RO         1634    Region$$Table       anon$$obj.o
+    0x08004fe8   0x08004fe8   0x0000019a   Code   RO           78    .text.main          main.o
+    0x08005182   0x08005182   0x00000002   PAD
+    0x08005184   0x08005184   0x00000024   Code   RO           19    .text.ov7670_capture  ov7670.o
+    0x080051a8   0x080051a8   0x000000a4   Code   RO           11    .text.ov7670_init   ov7670.o
+    0x0800524c   0x0800524c   0x00000024   Code   RO           17    .text.ov7670_snapshot  ov7670.o
+    0x08005270   0x08005270   0x00000012   Code   RO           32    .text.uart_send_bin  config.o
+    0x08005282   0x08005282   0x0000001a   Code   RO         1573    x$fpl$fpinit        fz_wm.l(fpinit.o)
+    0x0800529c   0x0800529c   0x00000010   Data   RO         1441    .rodata.AHBPrescTable  system_stm32f4xx.o
+    0x080052ac   0x080052ac   0x00000008   Data   RO         1442    .rodata.APBPrescTable  system_stm32f4xx.o
+    0x080052b4   0x080052b4   0x000000f4   Data   RO           21    .rodata.OV7670_reg  ov7670.o
+    0x080053a8   0x080053a8   0x00000008   Data   RO          436    .rodata.cst8        stm32f4xx_hal_dma.o
+    0x080053b0   0x080053b0   0x00000020   Data   RO         1634    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x080057a0, Size: 0x0001f738, Max: 0x00020000, ABSOLUTE)
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x080053d0, Size: 0x00019558, Max: 0x00020000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000000   0x080057a0   0x00000008   Data   RW          614    .data..L_MergedGlobals  stm32f4xx_hal.o
-    0x20000008   0x080057a8   0x00000004   Data   RW         1440    .data.SystemCoreClock  system_stm32f4xx.o
-    0x2000000c   0x080057ac   0x00000004   Data   RW           82    .data.snapshot_length  main.o
+    0x20000000   0x080053d0   0x00000008   Data   RW          614    .data..L_MergedGlobals  stm32f4xx_hal.o
+    0x20000008   0x080053d8   0x00000004   Data   RW         1440    .data.SystemCoreClock  system_stm32f4xx.o
+    0x2000000c   0x080053dc   0x00000004   Data   RW           82    .data.snapshot_length  main.o
     0x20000010        -       0x00000060   Zero   RW         1499    .bss                c_w.l(libspace.o)
     0x20000070        -       0x00000008   Zero   RW           89    .bss..L_MergedGlobals  main.o
     0x20000078        -       0x00000050   Zero   RW           55    .bss.hdcmi          config.o
@@ -3367,14 +3365,13 @@ Memory Map of the image
     0x200006e8        -       0x00000048   Zero   RW           57    .bss.htim1          config.o
     0x20000730        -       0x00000048   Zero   RW           58    .bss.htim6          config.o
     0x20000778        -       0x00000044   Zero   RW           54    .bss.huart3         config.o
-    0x200007bc        -       0x000061e0   Zero   RW           87    .bss.old_snapshot_buff  main.o
-    0x2000699c        -       0x0000c3c0   Zero   RW           84    .bss.snapshot_buff  main.o
-    0x20012d5c        -       0x0000c3d2   Zero   RW           85    .bss.tx_buff        main.o
-    0x2001f12e   0x080057b0   0x00000002   PAD
-    0x2001f130        -       0x00000004   Zero   RW          613    .bss.uwTick         stm32f4xx_hal.o
-    0x2001f134   0x080057b0   0x00000004   PAD
-    0x2001f138        -       0x00000200   Zero   RW            2    HEAP                startup_stm32f446xx.o
-    0x2001f338        -       0x00000400   Zero   RW            1    STACK               startup_stm32f446xx.o
+    0x200007bc        -       0x0000c3c0   Zero   RW           84    .bss.snapshot_buff  main.o
+    0x2000cb7c        -       0x0000c3d2   Zero   RW           85    .bss.tx_buff        main.o
+    0x20018f4e   0x080053e0   0x00000002   PAD
+    0x20018f50        -       0x00000004   Zero   RW          613    .bss.uwTick         stm32f4xx_hal.o
+    0x20018f54   0x080053e0   0x00000004   PAD
+    0x20018f58        -       0x00000200   Zero   RW            2    HEAP                startup_stm32f446xx.o
+    0x20019158        -       0x00000400   Zero   RW            1    STACK               startup_stm32f446xx.o
 
 
 ==============================================================================
@@ -3384,34 +3381,34 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
-      1158          0          0          0       1860      17925   config.o
-      1380          0          0          4     125306       6080   main.o
-       236          0        244          0          0       3287   ov7670.o
-        64         26        452          0       1536        876   startup_stm32f446xx.o
-       204          0          0          8          4       7515   stm32f4xx_hal.o
-       196          0          0          0          0      10591   stm32f4xx_hal_cortex.o
-       808          0          0          0          0       8998   stm32f4xx_hal_dcmi.o
-       156          0          0          0          0       3621   stm32f4xx_hal_dcmi_ex.o
-      1142          6          8          0          0      10756   stm32f4xx_hal_dma.o
-      1260          0          0          0          0       4836   stm32f4xx_hal_dma_ex.o
-       448          0          0          0          0       5468   stm32f4xx_hal_gpio.o
-      2972          0          0          0          0      54911   stm32f4xx_hal_i2c.o
-      1126          0          0          0          0      18013   stm32f4xx_hal_msp.o
-       330          0          0          0          0      17098   stm32f4xx_hal_pcd.o
-        38          0          0          0          0       5256   stm32f4xx_hal_pcd_ex.o
-       432          0          0          0          0       7586   stm32f4xx_hal_rcc.o
-      2240          4          0          0          0      11156   stm32f4xx_hal_rcc_ex.o
-      1708          6          0          0          0      55502   stm32f4xx_hal_tim.o
-       270          0          0          0          0      21008   stm32f4xx_hal_tim_ex.o
-      2736          0          0          0          0      31837   stm32f4xx_hal_uart.o
-       154          0          0          0          0       7982   stm32f4xx_it.o
-      1780          0          0          0          0      36721   stm32f4xx_ll_usb.o
-        18          0         24          4          0       2758   system_stm32f4xx.o
+      1158          0          0          0       1860      17935   config.o
+       410          0          0          4     100250       6502   main.o
+       236          0        244          0          0       3297   ov7670.o
+        64         26        452          0       1536        880   startup_stm32f446xx.o
+       204          0          0          8          4       7525   stm32f4xx_hal.o
+       196          0          0          0          0      10601   stm32f4xx_hal_cortex.o
+       808          0          0          0          0       9008   stm32f4xx_hal_dcmi.o
+       156          0          0          0          0       3631   stm32f4xx_hal_dcmi_ex.o
+      1142          6          8          0          0      10766   stm32f4xx_hal_dma.o
+      1260          0          0          0          0       4846   stm32f4xx_hal_dma_ex.o
+       448          0          0          0          0       5478   stm32f4xx_hal_gpio.o
+      2972          0          0          0          0      54921   stm32f4xx_hal_i2c.o
+      1126          0          0          0          0      18023   stm32f4xx_hal_msp.o
+       330          0          0          0          0      17108   stm32f4xx_hal_pcd.o
+        38          0          0          0          0       5266   stm32f4xx_hal_pcd_ex.o
+       432          0          0          0          0       7596   stm32f4xx_hal_rcc.o
+      2240          4          0          0          0      11166   stm32f4xx_hal_rcc_ex.o
+      1708          6          0          0          0      55512   stm32f4xx_hal_tim.o
+       270          0          0          0          0      21018   stm32f4xx_hal_tim_ex.o
+      2736          0          0          0          0      31847   stm32f4xx_hal_uart.o
+       154          0          0          0          0       7992   stm32f4xx_it.o
+      1780          0          0          0          0      36731   stm32f4xx_ll_usb.o
+        18          0         24          4          0       2768   system_stm32f4xx.o
 
     ----------------------------------------------------------------------
-     20998         42        760         16     128712     349781   Object Totals
+     20026         42        760         16     103656     350417   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-       142          0          0          0          6          0   (incl. Padding)
+       140          0          0          0          6          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -3462,15 +3459,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     21668         58        760         16     128808     350049   Grand Totals
-     21668         58        760         16     128808     350049   ELF Image Totals
-     21668         58        760         16          0          0   ROM Totals
+     20696         58        760         16     103752     350685   Grand Totals
+     20696         58        760         16     103752     350685   ELF Image Totals
+     20696         58        760         16          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                22428 (  21.90kB)
-    Total RW  Size (RW Data + ZI Data)            128824 ( 125.80kB)
-    Total ROM Size (Code + RO Data + RW Data)      22444 (  21.92kB)
+    Total RO  Size (Code + RO Data)                21456 (  20.95kB)
+    Total RW  Size (RW Data + ZI Data)            103768 ( 101.34kB)
+    Total ROM Size (Code + RO Data + RW Data)      21472 (  20.97kB)
 
 ==============================================================================
 
