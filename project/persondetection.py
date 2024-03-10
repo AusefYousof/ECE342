@@ -26,9 +26,9 @@ transform = transforms.Compose([
     ])
 
 
-train_dataset_path =  r'project\human detection dataset\train'
-val_dataset_path =  r'project\human detection dataset\val'
-test_dataset_path =  r'project\human detection dataset\test'
+train_dataset_path =  r'human detection dataset\train'
+val_dataset_path =  r'human detection dataset\val'
+test_dataset_path =  r'human detection dataset/test'
 
 train_dataset = torchvision.datasets.ImageFolder(train_dataset_path, transform=transform)
 val_dataset = torchvision.datasets.ImageFolder(val_dataset_path, transform=transform)
@@ -137,7 +137,7 @@ def evaluate(net, loader, criterion):
     return err, loss
 
 
-def train(net, batch_size=32, learning_rate=0.01, num_epochs=10):
+def train(net, batch_size=32, learning_rate=0.001, num_epochs=15):
     
     criterion = nn.BCEWithLogitsLoss()
     optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9)
@@ -195,7 +195,7 @@ def train(net, batch_size=32, learning_rate=0.01, num_epochs=10):
     print("Total time elapsed: {:.2f} seconds".format(elapsed_time))
     
     #save model
-    torch.save(net, "PD_CNN_MODEL")
+    torch.save(net, "serial_monitor\serial_monitor_lab_06\PD_CNN_MODEL")
 
 
 

@@ -263,7 +263,7 @@ int main(void)
 		
 		
 		/////////// PART 3.4  - CAPTURING ONE FRAME //////////////
-		/*
+		
     if (HAL_GPIO_ReadPin(USER_Btn_GPIO_Port, USER_Btn_Pin)) {
       HAL_Delay(100);  // debounce
 			ov7670_snapshot(snapshot_buff);
@@ -279,7 +279,7 @@ int main(void)
 			send_image();
 			
       print_msg("Snap!\r\n");
-    }*/
+    }
 		
 		
 		////////////////////// PART 3.4 END //////////////////////
@@ -287,19 +287,19 @@ int main(void)
 		
 		
 		//Code to take snapshot continuosly, clear dma flag
-		
+		/*
 		ov7670_snapshot(snapshot_buff);
 		while(!dma_flag){
 				HAL_Delay(300);  //try a smaller delay for video to limit frame lag
 		}
 		dma_flag = 0;
-		
+		*/
 		
 		
 		///////////////// PART 4.2  - CTS IMAGE SEND////////////
 		//already in while 1:
 		//uart with dma only (for table)
-		send_image();
+		//send_image();
 		
 		///////////////////// PART 4.2 END ///////////////////////
 		
