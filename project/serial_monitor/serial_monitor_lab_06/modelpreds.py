@@ -30,6 +30,14 @@ class PD_CNN(nn.Module):
         self.fc1 = nn.Linear(32 * 36 * 43, 256)  # Reduced size
         self.fc2 = nn.Linear(256, 1)
 
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = x.view(-1, 32 * 36 * 43)  # Adjust the flattening
+        x = F.relu(self.fc1(x))
+        x = torch.sigmoid(self.fc2(x))
+        return x
+
 def load_model(model_path="PD_CNN_MODEL"):
     model = torch.load(model_path)
     model.eval()  
@@ -40,8 +48,8 @@ def predict(model, img_bytes):
     Make a prediction for an input image.
     """
     # Convert bytes back to PIL Image
-    img = Image.open(io.BytesIO(img_bytes))
-    
+    size = (144,174)
+    img = Image.frombytes('L', size, img_bytes)
     # Define transformations
     transform = transforms.Compose([
         transforms.Grayscale(num_output_channels=1),

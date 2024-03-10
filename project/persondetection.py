@@ -26,9 +26,9 @@ transform = transforms.Compose([
     ])
 
 
-train_dataset_path =  r'C:\Users\ausef\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\human detection dataset\train'
-val_dataset_path =  r'C:\Users\ausef\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\human detection dataset\val'
-test_dataset_path =  r'C:\Users\ausef\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\human detection dataset\test'
+train_dataset_path =  r'human detection dataset\train'
+val_dataset_path =  r'human detection dataset\val'
+test_dataset_path =  r'human detection dataset\test'
 
 train_dataset = torchvision.datasets.ImageFolder(train_dataset_path, transform=transform)
 val_dataset = torchvision.datasets.ImageFolder(val_dataset_path, transform=transform)
