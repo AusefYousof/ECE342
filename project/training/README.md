@@ -1,1 +1,0 @@
-Directory for saving model states and python training script

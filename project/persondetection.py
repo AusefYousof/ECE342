@@ -14,27 +14,27 @@ import time
 use_cuda = True; # try to use CUDA when training model
 dimensions = [144,174]
 
-
+###########################################################################################################
+##############################            DATA PROCESSING              ####################################
+###########################################################################################################
 
 transform = transforms.Compose([
     transforms.Grayscale(num_output_channels=1),  # Convert to grayscale
     transforms.Resize((144, 174)),  # Resize to target dimensions
     transforms.ToTensor(),  # Convert to tensor
-    transforms.Normalize((0.5,), (0.5,)),  # Normalize grayscale images; adjust as needed
-    transforms.Lambda(lambda x: x.repeat(3, 1, 1)),  # Ensure this creates a 3-channel image
-])
+    transforms.Normalize((0.5,), (0.5,))  # Adjusted for a single channel
+    ])
 
 
+train_dataset_path =  r'project\human detection dataset\train'
+val_dataset_path =  r'project\human detection dataset\val'
+test_dataset_path =  r'project\human detection dataset\test'
+
+train_dataset = torchvision.datasets.ImageFolder(train_dataset_path, transform=transform)
+val_dataset = torchvision.datasets.ImageFolder(val_dataset_path, transform=transform)
+test_dataset = torchvision.datasets.ImageFolder(test_dataset_path, transform=transform)
 
 
-
-dataset_path =  r'human detection dataset'
-
-train_dataset = torchvision.datasets.ImageFolder(dataset_path + r'\train', transform=transform)
-val_dataset = torchvision.datasets.ImageFolder(dataset_path + r'\val', transform=transform)
-test_dataset = torchvision.datasets.ImageFolder(dataset_path + r'\test', transform=transform)
-
-print(train_dataset[0])
 
 total = len(train_dataset)+len(val_dataset)+len(test_dataset)
 perc_train = str(round(len(train_dataset)/total * 100,2))
@@ -43,12 +43,6 @@ perc_test = str(round(len(test_dataset)/total * 100,2))
 #print("Testing Data is:", perc_train + "% train,", perc_val + "% validation,", perc_test + "% test\n") 
 #looking for about a 75 - 12.5 - 12.5 percent split
 
-
-alexnet = torchvision.models.alexnet(weights=AlexNet_Weights.DEFAULT)
-
-use_cuda = True if torch.cuda.is_available() else False
-if use_cuda:
-    alexnet = alexnet.cuda()
 
 #probably gonna go unused causing pathing is so bad
 def get_model_name(name, batch_size, learning_rate, epoch):
@@ -59,220 +53,162 @@ def get_model_name(name, batch_size, learning_rate, epoch):
     return path
 
 
+
+###########################################################################################################
+###############################            NETWORK DEFINITION          ####################################
+###########################################################################################################
+
+
+
 #define our classes (traffic signals)
 classes = ['0', '1']
 
-path = r'AlexNet\Features'
-
-#function to extract alexnet features from our data, save to folder.
-def alex_features(data):
-    if data == "train":
-        data_loader = torch.utils.data.DataLoader(train_dataset, batch_size=1, shuffle=True)
-    elif data == "val":
-        data_loader = torch.utils.data.DataLoader(val_dataset, batch_size=1, shuffle=True)
-    elif data == "test":
-        data_loader = torch.utils.data.DataLoader(test_dataset, batch_size=1, shuffle=True)
-    else:
-        print("Error, invalid dataset name")
-        return None
-    #iterate through loaded data, save alex net features
-    n = 0
-    for imgs, labels in iter(data_loader):
-        features = alexnet.features(imgs)
-        features_tensor = torch.from_numpy(features.detach().numpy())
-        torch.save(features_tensor.squeeze(0), path + '\\'+ data + '\\' + classes[labels] + '\\' + 'feature_bs1_' + str(n) + '.tensor')
-        n += 1
-
-#get features
-alex_features("train")
-alex_features("val")
-alex_features("test")
-
-#load our features
-
-train_features = torchvision.datasets.DatasetFolder(path + r"\train", loader=torch.load,
-                                                    extensions=('.tensor'))
-val_features = torchvision.datasets.DatasetFolder(path + r"\val", loader=torch.load,
-                                                  extensions=('.tensor'))
-test_features = torchvision.datasets.DatasetFolder(path + r"\test", loader=torch.load,
-                                                   extensions=('.tensor'))
-
-class CustomAlexNet(nn.Module):
-    def __init__(self, num_classes=2): # 0 or 1 for person or no person
-        super(CustomAlexNet, self).__init__()
-        self.name = "CustomAlexNet"
-        # Feature extraction part (could use alexnet.features if dimensions match)
-        self.features = nn.Sequential(
-            # Define your conv layers here if needed, or use pre-trained ones
-        )
-
-        # The size of the flattened feature tensor
-        self.flattened_size = 256 * 3 * 4  
-        
-        # Fully connected layers
-        self.fc1 = nn.Linear(self.flattened_size, 1024)  # Example size
-        self.fc2 = nn.Linear(1024, num_classes)
+class PD_CNN(nn.Module):
+    def __init__(self):
+        super(PD_CNN, self).__init__()
+        self.name = "PD_CNN"
+        # Use fewer filters in the convolutional layers
+        self.conv1 = nn.Conv2d(1, 16, kernel_size=5, stride=1, padding=2)  # From 32 to 16
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
+        self.conv2 = nn.Conv2d(16, 32, kernel_size=5, stride=1, padding=2)  # From 64 to 32
+        # Adjust the size of the fully connected layer
+        self.fc1 = nn.Linear(32 * 36 * 43, 256)  # Reduced size
+        self.fc2 = nn.Linear(256, 1)
 
     def forward(self, x):
-        x = self.features(x)
-        x = x.view(-1, self.flattened_size)  # Flatten the features
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = x.view(-1, 32 * 36 * 43)  # Adjust the flattening
         x = F.relu(self.fc1(x))
-        x = self.fc2(x)
+        x = torch.sigmoid(self.fc2(x))
         return x
+
+
+
+
+
+###########################################################################################################
+##################################             TRAINING           #########################################
+###########################################################################################################
     
-
-def get_accuracy_ALEX(model, batch_size, train=False):
-    if train:
-        data = train_features
-    else:
-        data = val_features
-    correct = 0
-    total = 0
-    for imgs, labels in torch.utils.data.DataLoader(data, batch_size=batch_size):
-
-
-        #############################################
-        # To Enable GPU Usage
-        if use_cuda and torch.cuda.is_available():
-          imgs = imgs.cuda()
-          labels = labels.cuda()
-        #############################################
-
-
-        output = model(imgs)
-
-        # Select index with maximum prediction score
-        pred = output.max(1, keepdim=True)[1]
-        correct += pred.eq(labels.view_as(pred)).sum().item()
-        total += imgs.shape[0]
-    return correct / total
-
-
-
 trainpath = "training"
 
-def train_ALEX(model, data, batch_size=64, learning_rate=0.05, num_epochs=25):
-    torch.manual_seed(1000)
-    train_loader = torch.utils.data.DataLoader(data, batch_size=batch_size, shuffle=True)
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+def normalize_label(labels):
+    """
+    Given a tensor containing 2 possible values, normalize this to 0/1
 
-    iters, losses, train_acc, val_acc = [], [], [], []
-
-    # Training
-    start_time = time.time()
-    n = 0 # the number of iterations
-    for epoch in range(num_epochs):
-        for imgs, labels in iter(train_loader):
-
-
-            #############################################
-            # To Enable GPU Usage
-            if use_cuda and torch.cuda.is_available():
-              imgs = imgs.cuda()
-              labels = labels.cuda()
-            #############################################
+    Args:
+        labels: a 1D tensor containing two possible scalar values
+    Returns:
+        A tensor normalize to 0/1 value
+    """
+    max_val = torch.max(labels)
+    min_val = torch.min(labels)
+    norm_labels = (labels - min_val)/(max_val - min_val)
+    return norm_labels
 
 
-            out = model(imgs)             # forward pass
-            loss = criterion(out, labels) # compute the total loss
-            loss.backward()               # backward pass (compute parameter updates)
-            optimizer.step()              # make the updates for each parameter
-            optimizer.zero_grad()         # a clean up step for PyTorch
+def evaluate(net, loader, criterion):
+    """ Evaluate the network on the validation set.
 
-            # Save the current training information
-            iters.append(n)
-            losses.append(float(loss)/batch_size)             # compute *average* loss
-            n += 1
-        train_acc.append(get_accuracy_ALEX(model, batch_size=batch_size, train=True)) # compute training accuracy
-        val_acc.append(get_accuracy_ALEX(model, batch_size=batch_size, train=False))  # compute validation accuracy
+     Args:
+         net: PyTorch neural network object
+         loader: PyTorch data loader for the validation set
+         criterion: The loss function
+     Returns:
+         err: A scalar for the avg classification error over the validation set
+         loss: A scalar for the average loss function over the validation set
+     """
+    total_loss = 0.0
+    total_err = 0.0
+    total_epoch = 0
+    for i, data in enumerate(loader, 0):
+        inputs, labels = data
+        labels = normalize_label(labels)  # Convert labels to 0/1
+        labels = labels.unsqueeze(1)
+        outputs = net(inputs)
+        loss = criterion(outputs, labels.float())
+        corr = (outputs > 0.5).squeeze().long() != labels.squeeze().long()  # Adjusted comparison for binary classification
+        total_err += int(corr.sum())
+        total_loss += loss.item()
+        total_epoch += len(labels)
+    err = float(total_err) / total_epoch
+    loss = float(total_loss) / (i + 1)
+    return err, loss
 
-        # Save the current model (checkpoint) to a file
-        #model_path = get_model_name(model.name, batch_size, learning_rate, epoch)
-        #model_path = os.path.join(trainpath, model_path)
-        #torch.save(model.state_dict(), model_path)
 
+def train(net, batch_size=32, learning_rate=0.01, num_epochs=10):
     
+    criterion = nn.BCEWithLogitsLoss()
+    optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9)
 
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
+    ########################################################################
+    # Set up some numpy arrays to store the training/test loss/erruracy
+    train_err = np.zeros(num_epochs)
+    train_loss = np.zeros(num_epochs)
+    val_err = np.zeros(num_epochs)
+    val_loss = np.zeros(num_epochs)
+    ########################################################################
+    # Train the network
+    # Loop over the data iterator and sample a new batch of training data
+    # Get the output from the network, and optimize our loss function.
+    start_time = time.time()
+    for epoch in range(num_epochs):  # loop over the dataset multiple times
+        total_train_loss = 0.0
+        total_train_err = 0.0
+        total_epoch = 0
+        for i, data in enumerate(train_loader, 0):
+            # Get the inputs
+            inputs, labels = data
+            labels = normalize_label(labels) # Convert labels to 0/1
+            labels = labels.unsqueeze(1)
+            # Zero the parameter gradients
+            optimizer.zero_grad()
+            # Forward pass, backward pass, and optimize
+            outputs = net(inputs)
+            loss = criterion(outputs, labels.float())
+            loss.backward()
+            optimizer.step()
+            # Calculate the statistics
+            corr = (outputs > 0.0).squeeze().long() != labels
+            total_train_err += int(corr.sum())
+            total_train_loss += loss.item()
+            total_epoch += len(labels)
+        train_err[epoch] = float(total_train_err) / total_epoch
+        train_loss[epoch] = float(total_train_loss) / (i+1)
+        val_err[epoch], val_loss[epoch] = evaluate(net, val_loader, criterion)
+        print(("Epoch {}: Train err: {}, Train loss: {} |"+
+               "Validation err: {}, Validation loss: {}").format(
+                   epoch + 1,
+                   train_err[epoch],
+                   train_loss[epoch],
+                   val_err[epoch],
+                   val_loss[epoch]))
+        # Save the current model (checkpoint) to a file
+        #model_path = get_model_name(net.name, batch_size, learning_rate, epoch)
+        #torch.save(net.state_dict(), model_path)
     print('Finished Training')
     end_time = time.time()
     elapsed_time = end_time - start_time
     print("Total time elapsed: {:.2f} seconds".format(elapsed_time))
-
-    #save the model
-    file_path = os.path.join(trainpath,model.name)
-    torch.save(model, file_path)
-
-
-    # Plotting
-    plt.title("Training Curve")
-    plt.plot(iters, losses, label="Train")
-    plt.xlabel("Iterations")
-    plt.ylabel("Loss")
-    plt.show()
-
-    plt.title("Training Curve")
-    plt.plot(range(1 ,num_epochs+1), train_acc, label="Train")
-    plt.plot(range(1 ,num_epochs+1), val_acc, label="Validation")
-    plt.xlabel("Epochs")
-    plt.ylabel("Training Accuracy")
-    plt.legend(loc='best')
-    plt.show()
-
-    print("Final Training Accuracy: {}".format(train_acc[-1]))
-    print("Final Validation Accuracy: {}".format(val_acc[-1]))
+    
+    #save model
+    torch.save(net, "PD_CNN_MODEL")
 
 
 
-model = CustomAlexNet()
+model = PD_CNN()
+if use_cuda and torch.cuda.is_available():
+    model = model.cuda()
+else:
+    print("Not using Cuda \n")
 
-#Generating The Model
-#train_ALEX(model, train_features, batch_size=32, learning_rate=0.03, num_epochs=20)
-#dont run if already trained and saved a model
+train(model)
 
-loadpath = r"training\CustomAlexNet"
-
-load_model = torch.load(loadpath)
-model.eval()
+#model is trained at this point, load it in modelpreds.py
 
 
 
 
-
-#demopath = r""
-demopath = r"training\demoimages"
-demo_dataset = torchvision.datasets.ImageFolder(demopath, transform=transform)
-
-#extract test images features
-def alex_features_demo(data="demo"):
-    data_loader = torch.utils.data.DataLoader(demo_dataset, batch_size=1, shuffle=True)
-
-
-    #iterate through loaded data, save alex net features
-    n = 0
-    for imgs, labels in iter(data_loader):
-        features = alexnet.features(imgs)
-        features_tensor = torch.from_numpy(features.detach().numpy())
-        torch.save(features_tensor.squeeze(0), path + '\\'+ "demo" + '\\' + classes[labels] + '\\' + 'feature_bs1_' + str(n) + '.tensor')
-        n += 1
-
-#get demo image features for input to model
-alex_features_demo()
-
-demo_features = torchvision.datasets.DatasetFolder(path + "\\demo", loader=torch.load,
-                                                    extensions=('.tensor'))
-
-demo_loader = torch.utils.data.DataLoader(demo_features, batch_size=1, shuffle=True)
-
-for imgs, labels in iter(demo_loader):
-        
-    with torch.no_grad():
-        print("Ground truth:", labels)
-        print("\n")
-        output = load_model(imgs)
-        probabilities = F.softmax(output, dim=1)
-        predicted_class = torch.argmax(probabilities, dim=1)
-
-        print("Predicted class:", predicted_class.item())
-
-#print(output)
