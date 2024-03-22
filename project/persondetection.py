@@ -26,9 +26,9 @@ transform = transforms.Compose([
     ])
 
 
-train_dataset_path =  r'C:\Users\Ausef Yousof\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\human detection dataset\train'
-val_dataset_path =  r'C:\Users\Ausef Yousof\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\human detection dataset\val'
-test_dataset_path =  r'C:\Users\Ausef Yousof\OneDrive\Documents\ECE YEAR 3 SEM 2\ECE342\project\human detection dataset\test'
+train_dataset_path =  'project\\human detection dataset\\train'
+val_dataset_path =  'project\\human detection dataset\\val'
+test_dataset_path =  'project\\human detection dataset\\test'
 
 train_dataset = torchvision.datasets.ImageFolder(train_dataset_path, transform=transform)
 val_dataset = torchvision.datasets.ImageFolder(val_dataset_path, transform=transform)
@@ -195,7 +195,7 @@ def train(net, batch_size=8, learning_rate=0.001, num_epochs=15):
     print("Total time elapsed: {:.2f} seconds".format(elapsed_time))
     
     #save model
-    torch.save(net, "project\serial_monitor\serial_monitor_lab_06/PD_CNN")
+    torch.save(net, "project\\serial_monitor\\serial_monitor_lab_06\\PD_CNN")
 
 
 

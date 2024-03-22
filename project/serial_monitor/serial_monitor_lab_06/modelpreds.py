@@ -38,7 +38,7 @@ class PD_CNN(nn.Module):
         x = torch.sigmoid(self.fc2(x))
         return x
 
-def load_model(model_path="PD_CNN_MODEL"):
+def load_model(model_path="PD_CNN"):
     model = torch.load(model_path)
     model.eval()  
     return model
