@@ -50,6 +50,8 @@ def predict(model, img_bytes):
     # Convert bytes back to PIL Image
     size = (144,174)
     img = Image.frombytes('L', size, img_bytes)
+
+    img.show()
     # Define transformations
     transform = transforms.Compose([
         transforms.Grayscale(num_output_channels=1),
