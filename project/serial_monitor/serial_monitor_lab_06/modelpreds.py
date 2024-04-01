@@ -48,10 +48,9 @@ def predict(model, img_bytes):
     Make a prediction for an input image.
     """
     # Convert bytes back to PIL Image
-    size = (144,174)
+    size = (174,144)
     img = Image.frombytes('L', size, img_bytes)
-
-    img.show()
+    
     # Define transformations
     transform = transforms.Compose([
         transforms.Grayscale(num_output_channels=1),
@@ -86,7 +85,11 @@ if __name__ == "__main__":
     
     # Predict
     prediction = predict(model, img_bytes)
+
+    
     
     # Print the prediction result
     print(prediction)
+
+    
 
