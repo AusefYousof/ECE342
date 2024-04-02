@@ -18,6 +18,8 @@ import time
 import tkinter as tk
 from tkinter import messagebox
 
+from torchvision.transforms.functional import to_pil_image
+
 
 #this code is going to be moved into serial_monitor_lab_06.py and .exe will be generated because
 #this method of sending the photo to the script which loads and predicts everytime is not efficient
@@ -83,6 +85,13 @@ def predict(model, img_bytes):
     
     # Apply transformations
     input_tensor = transform(img)
+
+
+    #image_pil = to_pil_image(input_tensor)
+
+    # Display the image and print its label
+    #plt.imshow(image_pil, cmap='gray')
+    #plt.show()
     input_batch = input_tensor.unsqueeze(0)  # Create a mini-batch as expected by the model
     
     # Move to GPU if available
@@ -95,7 +104,7 @@ def predict(model, img_bytes):
         output = model(input_batch)
     
     # Convert output probabilities to predicted class (0 or 1)
-    pred = torch.sigmoid(output).item() > 0.5
+    pred = torch.sigmoid(output).item() > 0.65
     return pred
 
 if __name__ == "__main__":

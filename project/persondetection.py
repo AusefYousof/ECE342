@@ -24,7 +24,7 @@ dimensions = [174,144]
 transform = transforms.Compose([
         transforms.Grayscale(num_output_channels=1),
         transforms.ToTensor(),
-        
+       
     ])
 
 
@@ -183,7 +183,7 @@ def train(net, batch_size=4, learning_rate=0.005, num_epochs=10):
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1)
             optimizer.step()
             # Calculate the statistics
-            corr = (outputs > 0.0).squeeze().long() != labels
+            corr = (outputs > 0.5).squeeze().long() != labels
             total_train_err += int(corr.sum())
             total_train_loss += loss.item()
             total_epoch += len(labels)
@@ -215,13 +215,43 @@ def train(net, batch_size=4, learning_rate=0.005, num_epochs=10):
 
 
 
-model = PD_CNN()
-if use_cuda and torch.cuda.is_available():
-    model = model.cuda()
-else:
-    print("Not using Cuda \n")
 
-train(model)
+
+model = PD_CNN()
+criterion = nn.BCEWithLogitsLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=4, shuffle=True)
+val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=4, shuffle=True)
+
+num_epochs = 10
+for epoch in range(num_epochs):
+    for images, labels in train_loader:
+        outputs = model(images)
+        labels = labels.view(-1, 1).float()  # Reshape labels to match output
+        loss = criterion(outputs, labels)
+        
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+    
+    print(f'Epoch {epoch+1}, Loss: {loss.item()}')
+
+
+correct = 0
+total = 0
+with torch.no_grad():
+    for images, labels in val_loader:
+        outputs = model(images)
+        predicted = (outputs.data > 0.5).float()
+        total += labels.size(0)
+        correct += (predicted.view(-1) == labels).sum().item()
+
+print(f'Accuracy of the network on the test images: {100 * correct / total}%')
+torch.save(model, "project\\serial_monitor\\serial_monitor_lab_06\\PD_CNN")
+
+
+
+
 
 #model is trained at this point, load it in modelpreds.py
 
