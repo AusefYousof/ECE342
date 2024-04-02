@@ -50,6 +50,12 @@ def predict(model, img_bytes):
     # Convert bytes back to PIL Image
     size = (174,144)
     img = Image.frombytes('L', size, img_bytes)
+
+    save_dir = "0"
+    #to save images (making dataset from scratch)
+    timestamp = time.strftime("%Y%m%d-%H%M%S")
+    image_path = os.path.join(save_dir, f"image_{timestamp}.jpg")
+    img.save(image_path)
     
     # Define transformations
     transform = transforms.Compose([
