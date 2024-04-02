@@ -66,11 +66,11 @@ def predict(model, img_bytes):
     #to save images (making dataset from scratch)
     ##############################################
     
-    save_dir = "1"
+    #save_dir = "1"
     #to save images (making dataset from scratch)
-    timestamp = time.strftime("%Y%m%d-%H%M%S")
-    image_path = os.path.join(save_dir, f"image_{timestamp}.jpg")
-    img.save(image_path)
+    #timestamp = time.strftime("%Y%m%d-%H%M%S")
+    #image_path = os.path.join(save_dir, f"image_{timestamp}.jpg")
+    #img.save(image_path)
 
     #to output the image we received from stdin
     #img.show()
