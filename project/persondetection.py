@@ -10,38 +10,49 @@ from PIL import Image
 import torchvision.models #gonna use AlexNet
 from torchvision.models.alexnet import AlexNet_Weights
 import time
+from torchvision.transforms.functional import to_pil_image
 
 use_cuda = True; # try to use CUDA when training model
-dimensions = [144,174]
+dimensions = [174,144]
+
+
 
 ###########################################################################################################
 ##############################            DATA PROCESSING              ####################################
 ###########################################################################################################
 
 transform = transforms.Compose([
-    transforms.Grayscale(num_output_channels=1),  # Convert to grayscale
-    transforms.Resize((144, 174)),  # Resize to target dimensions
-    transforms.ToTensor(),  # Convert to tensor
-    transforms.Normalize((0.5,), (0.5,))  # Adjusted for a single channel
+        transforms.Grayscale(num_output_channels=1),
+        transforms.ToTensor(),
+        
     ])
 
 
 train_dataset_path =  'project\\human detection dataset\\train'
 val_dataset_path =  'project\\human detection dataset\\val'
-test_dataset_path =  'project\\human detection dataset\\test'
+
 
 train_dataset = torchvision.datasets.ImageFolder(train_dataset_path, transform=transform)
 val_dataset = torchvision.datasets.ImageFolder(val_dataset_path, transform=transform)
-test_dataset = torchvision.datasets.ImageFolder(test_dataset_path, transform=transform)
+
+#image, label = train_dataset[7]
+
+# Convert the tensor image to a PIL Image for easy visualization
+#image_pil = to_pil_image(image)
+
+# Display the image and print its label
+#plt.imshow(image_pil, cmap='gray')
+#plt.title(f'Label: {label}')
+#plt.show()
 
 
-
-total = len(train_dataset)+len(val_dataset)+len(test_dataset)
+total = len(train_dataset)+len(val_dataset)
 perc_train = str(round(len(train_dataset)/total * 100,2))
 perc_val = str(round(len(val_dataset)/total * 100,2))
-perc_test = str(round(len(test_dataset)/total * 100,2))
 #print("Testing Data is:", perc_train + "% train,", perc_val + "% validation,", perc_test + "% test\n") 
 #looking for about a 75 - 12.5 - 12.5 percent split
+
+
 
 
 #probably gonna go unused causing pathing is so bad
@@ -67,20 +78,17 @@ class PD_CNN(nn.Module):
     def __init__(self):
         super(PD_CNN, self).__init__()
         self.name = "PD_CNN"
-        # Use fewer filters in the convolutional layers
-        self.conv1 = nn.Conv2d(1, 16, kernel_size=5, stride=1, padding=2)  # From 32 to 16
+        self.conv1 = nn.Conv2d(1, 8, kernel_size=3, stride=1, padding=1)  
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
-        self.conv2 = nn.Conv2d(16, 32, kernel_size=5, stride=1, padding=2)  # From 64 to 32
-        # Adjust the size of the fully connected layer
-        self.fc1 = nn.Linear(32 * 36 * 43, 256)  # Reduced size
-        self.fc2 = nn.Linear(256, 1)
+        self.fc1_input_size = 8 * (174//2) * (144//2)  
+        self.fc1 = nn.Linear(self.fc1_input_size, 128) 
+        self.fc2 = nn.Linear(128, 1)
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
-        x = x.view(-1, 32 * 36 * 43)  # Adjust the flattening
+        x = x.view(-1, self.fc1_input_size)  
         x = F.relu(self.fc1(x))
-        x = torch.sigmoid(self.fc2(x))
+        x = self.fc2(x)
         return x
 
 
@@ -137,7 +145,7 @@ def evaluate(net, loader, criterion):
     return err, loss
 
 
-def train(net, batch_size=8, learning_rate=0.001, num_epochs=15):
+def train(net, batch_size=4, learning_rate=0.005, num_epochs=10):
     
     criterion = nn.BCEWithLogitsLoss()
     optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9)
@@ -150,11 +158,13 @@ def train(net, batch_size=8, learning_rate=0.001, num_epochs=15):
     train_loss = np.zeros(num_epochs)
     val_err = np.zeros(num_epochs)
     val_loss = np.zeros(num_epochs)
+    iter_arr = [] #lol
     ########################################################################
     # Train the network
     # Loop over the data iterator and sample a new batch of training data
     # Get the output from the network, and optimize our loss function.
     start_time = time.time()
+    n=0
     for epoch in range(num_epochs):  # loop over the dataset multiple times
         total_train_loss = 0.0
         total_train_err = 0.0
@@ -167,18 +177,22 @@ def train(net, batch_size=8, learning_rate=0.001, num_epochs=15):
             # Zero the parameter gradients
             optimizer.zero_grad()
             # Forward pass, backward pass, and optimize
-            outputs = net(inputs)
+            outputs = torch.sigmoid(net(inputs))
             loss = criterion(outputs, labels.float())
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1)
             optimizer.step()
             # Calculate the statistics
             corr = (outputs > 0.0).squeeze().long() != labels
             total_train_err += int(corr.sum())
             total_train_loss += loss.item()
             total_epoch += len(labels)
+            iter_arr.append(n)
+            n+=1
         train_err[epoch] = float(total_train_err) / total_epoch
         train_loss[epoch] = float(total_train_loss) / (i+1)
         val_err[epoch], val_loss[epoch] = evaluate(net, val_loader, criterion)
+        
         print(("Epoch {}: Train err: {}, Train loss: {} |"+
                "Validation err: {}, Validation loss: {}").format(
                    epoch + 1,
@@ -193,6 +207,8 @@ def train(net, batch_size=8, learning_rate=0.001, num_epochs=15):
     end_time = time.time()
     elapsed_time = end_time - start_time
     print("Total time elapsed: {:.2f} seconds".format(elapsed_time))
+
+    
     
     #save model
     torch.save(net, "project\\serial_monitor\\serial_monitor_lab_06\\PD_CNN")

@@ -13,8 +13,22 @@ import torch.optim as optim
 import torch.utils.data as data
 from torchvision.datasets import ImageFolder
 from PIL import Image
-from torchvision.models.alexnet import AlexNet_Weights
 import time
+
+import tkinter as tk
+from tkinter import messagebox
+
+
+#this code is going to be moved into serial_monitor_lab_06.py and .exe will be generated because
+#this method of sending the photo to the script which loads and predicts everytime is not efficient
+
+
+def show_detection_alert():
+    root = tk.Tk()
+    root.withdraw()  # we don't want a full GUI, so keep the root window from appearing
+    messagebox.showinfo("Detection Alert", "PERSON DETECTED!")  # show an "Info" message box
+    root.destroy()
+
 
 
 
@@ -22,18 +36,15 @@ class PD_CNN(nn.Module):
     def __init__(self):
         super(PD_CNN, self).__init__()
         self.name = "PD_CNN"
-        # Use fewer filters in the convolutional layers
-        self.conv1 = nn.Conv2d(1, 16, kernel_size=5, stride=1, padding=2)  # From 32 to 16
+        self.conv1 = nn.Conv2d(1, 8, kernel_size=3, stride=1, padding=1)  
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
-        self.conv2 = nn.Conv2d(16, 32, kernel_size=5, stride=1, padding=2)  # From 64 to 32
-        # Adjust the size of the fully connected layer
-        self.fc1 = nn.Linear(32 * 36 * 43, 256)  # Reduced size
-        self.fc2 = nn.Linear(256, 1)
+        self.fc1_input_size = 8 * (174//2) * (144//2)  
+        self.fc1 = nn.Linear(self.fc1_input_size, 128) 
+        self.fc2 = nn.Linear(128, 1)
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
-        x = x.view(-1, 32 * 36 * 43)  # Adjust the flattening
+        x = x.view(-1, self.fc1_input_size)  
         x = F.relu(self.fc1(x))
         x = torch.sigmoid(self.fc2(x))
         return x
@@ -51,18 +62,23 @@ def predict(model, img_bytes):
     size = (174,144)
     img = Image.frombytes('L', size, img_bytes)
 
-    save_dir = "0"
+    #############################################
+    #to save images (making dataset from scratch)
+    ##############################################
+    
+    save_dir = "1"
     #to save images (making dataset from scratch)
     timestamp = time.strftime("%Y%m%d-%H%M%S")
     image_path = os.path.join(save_dir, f"image_{timestamp}.jpg")
     img.save(image_path)
+
+    #to output the image we received from stdin
+    #img.show()
     
     # Define transformations
     transform = transforms.Compose([
         transforms.Grayscale(num_output_channels=1),
-        transforms.Resize((144, 174)),
         transforms.ToTensor(),
-        transforms.Normalize((0.5,), (0.5,)),
     ])
     
     # Apply transformations
@@ -91,6 +107,9 @@ if __name__ == "__main__":
     
     # Predict
     prediction = predict(model, img_bytes)
+    #DETECTED! window if person detected
+    if prediction:
+        show_detection_alert()
 
     
     
