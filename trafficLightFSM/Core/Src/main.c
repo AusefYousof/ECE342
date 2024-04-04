@@ -26,21 +26,44 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+struct State{
+	int output;
+	int time;
+};
+	
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define G1R2 0
+#define Y1R2 1
+#define R1R2 2
+#define R1G2 3
+#define R1Y2 4
+#define R1R2_2 5
+//times
+#define GREENTIME 10
+#define RORYTIME 11
+
+
+
 
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+//init some states
+struct State st_G1R2 = {G1R2, GREENTIME}; //greens should last longer to let traffic flow
+struct State st_Y1R2 = {Y1R2, RORYTIME}; //shorter time for yellow lights
+struct State st_R1R2 = {R1R2, RORYTIME}; //shorter time for double reds
+struct State st_R1G2 = {R1G2, GREENTIME}; 
+struct State st_R1Y2 = {R1Y2, RORYTIME}; 
+struct State st_R1R2_2 = {R1R2_2, RORYTIME}; 
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef htim6;
+TIM_HandleTypeDef htim7;
 
 UART_HandleTypeDef huart3;
 
@@ -56,13 +79,16 @@ static void MX_GPIO_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
 static void MX_TIM6_Init(void);
+static void MX_TIM7_Init(void);
 /* USER CODE BEGIN PFP */
-
+void stateChange(struct State * currstate);
+void turnoff(void);
+void blink();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+volatile int ready = 0;
 /* USER CODE END 0 */
 
 /**
@@ -73,7 +99,14 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+	struct State states[] = {
+    st_G1R2,
+    st_Y1R2,
+    st_R1R2,
+    st_R1G2,
+    st_R1Y2,
+    st_R1R2_2
+	};
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -97,20 +130,115 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
   MX_TIM6_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
-	HAL_TIM_Base_Start_IT(&htim6);
+	
   /* USER CODE END 2 */
+	//messed up in cube so just hard set it here
+	__HAL_TIM_SET_PRESCALER(&htim6, 140000-140000-1);
+	__HAL_TIM_SET_PRESCALER(&htim7, 4000-1);
+	__HAL_TIM_SET_AUTORELOAD(&htim6,10000);
+	__HAL_TIM_SET_AUTORELOAD(&htim7,300000);
+	
+	//cute little startup blink 
+	blink();
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
+    for(int i = 0; i < 6; i++){
+			//loop through states
+			stateChange(&states[i]);
+			//turn lights off
+			turnoff();	
+		}
   }
   /* USER CODE END 3 */
 }
+
+//timer raises an interrupt and goes to this function, set ready = 1 as were ready to progress past while loop
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if (htim == &htim6 || htim == &htim7)
+    {
+        ready = 1;
+    }
+}
+
+//state change function
+void stateChange(struct State * currstate){
+	//turn on lights depending on states output
+	switch (currstate->output){
+			case G1R2:
+				HAL_GPIO_WritePin(GREEN1_GPIO_Port, GREEN1_Pin, 1);
+				HAL_GPIO_WritePin(RED2_GPIO_Port, RED2_Pin, 1);
+				break;
+			case Y1R2:
+				HAL_GPIO_WritePin(YELLOW1_GPIO_Port, YELLOW1_Pin, 1);
+				HAL_GPIO_WritePin(RED2_GPIO_Port, RED2_Pin, 1);
+				break;
+			case R1R2:
+				HAL_GPIO_WritePin(RED1_GPIO_Port, RED1_Pin, 1);
+				HAL_GPIO_WritePin(RED2_GPIO_Port, RED2_Pin, 1);
+				break;
+			case R1G2:
+				HAL_GPIO_WritePin(RED1_GPIO_Port, RED1_Pin, 1);
+				HAL_GPIO_WritePin(GREEN2_GPIO_Port, GREEN2_Pin, 1);
+				break;
+			case R1Y2:
+				HAL_GPIO_WritePin(RED1_GPIO_Port, RED1_Pin, 1);
+				HAL_GPIO_WritePin(YELLOW2_GPIO_Port, YELLOW2_Pin, 1);
+				break;
+			case R1R2_2:
+				HAL_GPIO_WritePin(RED1_GPIO_Port, RED1_Pin, 1);
+				HAL_GPIO_WritePin(RED2_GPIO_Port, RED2_Pin, 1);
+				break;
+		}
+		
+		
+		if (currstate->time == GREENTIME){
+			__HAL_TIM_SET_COUNTER(&htim6, 0); //timer for green lights (longer one)
+			HAL_TIM_Base_Start_IT(&htim6);
+		}
+		else if (currstate->time == RORYTIME){
+			__HAL_TIM_SET_COUNTER(&htim7, 0); //timer for red or yellow lights (shorter one)
+			HAL_TIM_Base_Start_IT(&htim7); 
+		}
+	
+	
+		while(!ready); //wait for timer to end to switch states
+		ready = 0; //ready back to 0
+		
+		
+}
+//fn to turn off all lights between state changes 
+void turnoff(void){
+	HAL_GPIO_WritePin(RED1_GPIO_Port, RED1_Pin, 0);
+	HAL_GPIO_WritePin(YELLOW1_GPIO_Port, YELLOW1_Pin, 0);
+	HAL_GPIO_WritePin(GREEN1_GPIO_Port, GREEN1_Pin, 0);
+	HAL_GPIO_WritePin(RED2_GPIO_Port, RED2_Pin, 0);
+	HAL_GPIO_WritePin(YELLOW2_GPIO_Port, YELLOW2_Pin, 0);
+	HAL_GPIO_WritePin(GREEN2_GPIO_Port, GREEN2_Pin, 0);
+	
+}
+
+void blink(){
+	for (int i = 0; i < 6; i++){
+		HAL_GPIO_TogglePin(RED1_GPIO_Port, RED1_Pin);
+		HAL_GPIO_TogglePin(YELLOW1_GPIO_Port, YELLOW1_Pin);
+		HAL_GPIO_TogglePin(GREEN1_GPIO_Port, GREEN1_Pin);
+		HAL_GPIO_TogglePin(RED2_GPIO_Port, RED2_Pin);
+		HAL_GPIO_TogglePin(YELLOW2_GPIO_Port, YELLOW2_Pin);
+		HAL_GPIO_TogglePin(GREEN2_GPIO_Port, GREEN2_Pin);
+		HAL_Delay(600);
+	}
+	turnoff();
+	
+}
+
+
+
 
 /**
   * @brief System Clock Configuration
@@ -124,14 +252,13 @@ void SystemClock_Config(void)
   /** Configure the main internal regulator output voltage
   */
   __HAL_RCC_PWR_CLK_ENABLE();
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 4;
@@ -148,12 +275,12 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
   {
     Error_Handler();
   }
@@ -177,9 +304,9 @@ static void MX_TIM6_Init(void)
 
   /* USER CODE END TIM6_Init 1 */
   htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 1599;
+  htim6.Init.Prescaler = 16000-1;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 1000;
+  htim6.Init.Period = 2000-1;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
@@ -194,6 +321,44 @@ static void MX_TIM6_Init(void)
   /* USER CODE BEGIN TIM6_Init 2 */
 
   /* USER CODE END TIM6_Init 2 */
+
+}
+
+/**
+  * @brief TIM7 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM7_Init(void)
+{
+
+  /* USER CODE BEGIN TIM7_Init 0 */
+
+  /* USER CODE END TIM7_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM7_Init 1 */
+
+  /* USER CODE END TIM7_Init 1 */
+  htim7.Instance = TIM7;
+  htim7.Init.Prescaler = 16000-1;
+  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim7.Init.Period = 7000-1;
+  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM7_Init 2 */
+
+  /* USER CODE END TIM7_Init 2 */
 
 }
 
@@ -277,22 +442,16 @@ static void MX_GPIO_Init(void)
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOF, RED2_Pin|YELLOW2_Pin|GREEN2_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, YELLOW1_Pin|GREEN1_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(RED1_GPIO_Port, RED1_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GREEN2_GPIO_Port, GREEN2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LD1_Pin|LD3_Pin|LD2_Pin, GPIO_PIN_RESET);
@@ -300,32 +459,22 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(USB_PowerSwitchOn_GPIO_Port, USB_PowerSwitchOn_Pin, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOD, YELLOW2_Pin|RED2_Pin|GREEN1_Pin|YELLOW1_Pin
+                          |RED1_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : GREEN2_Pin */
+  GPIO_InitStruct.Pin = GREEN2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GREEN2_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pin : USER_Btn_Pin */
   GPIO_InitStruct.Pin = USER_Btn_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(USER_Btn_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : RED2_Pin YELLOW2_Pin GREEN2_Pin */
-  GPIO_InitStruct.Pin = RED2_Pin|YELLOW2_Pin|GREEN2_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : YELLOW1_Pin GREEN1_Pin */
-  GPIO_InitStruct.Pin = YELLOW1_Pin|GREEN1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : RED1_Pin */
-  GPIO_InitStruct.Pin = RED1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(RED1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LD1_Pin LD3_Pin LD2_Pin */
   GPIO_InitStruct.Pin = LD1_Pin|LD3_Pin|LD2_Pin;
@@ -346,6 +495,15 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(USB_OverCurrent_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : YELLOW2_Pin RED2_Pin GREEN1_Pin YELLOW1_Pin
+                           RED1_Pin */
+  GPIO_InitStruct.Pin = YELLOW2_Pin|RED2_Pin|GREEN1_Pin|YELLOW1_Pin
+                          |RED1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */

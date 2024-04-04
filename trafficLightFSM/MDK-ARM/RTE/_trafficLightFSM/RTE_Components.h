@@ -3,8 +3,8 @@
  * Auto generated Run-Time-Environment Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'trafficLightFSM' 
- * Target:  'trafficLightFSM' 
+ * Project: 'trafficlightFSM' 
+ * Target:  'trafficlightFSM' 
  */
 
 #ifndef RTE_COMPONENTS_H
