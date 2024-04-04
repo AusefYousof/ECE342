@@ -8,10 +8,10 @@ trafficlightfsm/stm32f4xx_hal_dma.o: \
   ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f446xx.h \
   ..\Drivers\CMSIS\Include\core_cm4.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
-  C:\Users\Ausef\ Yousof\OneDrive\Documents\ECE\ YEAR\ 3\ SEM\ 2\ECE342\trafficlightFSM\Drivers\CMSIS\Include\cmsis_version.h \
-  C:\Users\Ausef\ Yousof\OneDrive\Documents\ECE\ YEAR\ 3\ SEM\ 2\ECE342\trafficlightFSM\Drivers\CMSIS\Include\cmsis_compiler.h \
-  C:\Users\Ausef\ Yousof\OneDrive\Documents\ECE\ YEAR\ 3\ SEM\ 2\ECE342\trafficlightFSM\Drivers\CMSIS\Include\cmsis_armclang.h \
-  C:\Users\Ausef\ Yousof\OneDrive\Documents\ECE\ YEAR\ 3\ SEM\ 2\ECE342\trafficlightFSM\Drivers\CMSIS\Include\mpu_armv7.h \
+  C:\Users\ausef\OneDrive\Documents\ECE\ YEAR\ 3\ SEM\ 2\ECE342\trafficlightFSM\Drivers\CMSIS\Include\cmsis_version.h \
+  C:\Users\ausef\OneDrive\Documents\ECE\ YEAR\ 3\ SEM\ 2\ECE342\trafficlightFSM\Drivers\CMSIS\Include\cmsis_compiler.h \
+  C:\Users\ausef\OneDrive\Documents\ECE\ YEAR\ 3\ SEM\ 2\ECE342\trafficlightFSM\Drivers\CMSIS\Include\cmsis_armclang.h \
+  C:\Users\ausef\OneDrive\Documents\ECE\ YEAR\ 3\ SEM\ 2\ECE342\trafficlightFSM\Drivers\CMSIS\Include\mpu_armv7.h \
   ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\system_stm32f4xx.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stddef.h \

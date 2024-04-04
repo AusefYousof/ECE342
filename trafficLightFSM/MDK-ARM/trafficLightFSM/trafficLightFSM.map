@@ -39,7 +39,7 @@ Section Cross References
     main.o(.text.main) refers to stm32f4xx_hal_tim_ex.o(.text.HAL_TIMEx_MasterConfigSynchronization) for HAL_TIMEx_MasterConfigSynchronization
     main.o(.text.main) refers to main.o(.bss.htim7) for htim7
     main.o(.text.main) refers to main.o(.text.blink) for blink
-    main.o(.text.main) refers to main.o(.text.stateChange) for stateChange
+    main.o(.text.main) refers to stm32f4xx_hal_tim.o(.text.HAL_TIM_Base_Start_IT) for HAL_TIM_Base_Start_IT
     main.o(.ARM.exidx.text.main) refers to main.o(.text.main) for [Anonymous Symbol]
     main.o(.text.SystemClock_Config) refers to stm32f4xx_hal_rcc_ex.o(.text.HAL_RCC_OscConfig) for HAL_RCC_OscConfig
     main.o(.text.SystemClock_Config) refers to stm32f4xx_hal_rcc.o(.text.HAL_RCC_ClockConfig) for HAL_RCC_ClockConfig
@@ -1002,8 +1002,9 @@ Removing Unused input sections from the image.
     Removing main.o(.text), (0 bytes).
     Removing main.o(.ARM.exidx.text.main), (8 bytes).
     Removing main.o(.ARM.exidx.text.SystemClock_Config), (8 bytes).
+    Removing main.o(.text.stateChange), (168 bytes).
     Removing main.o(.ARM.exidx.text.stateChange), (8 bytes).
-    Removing main.o(.text.turnoff), (76 bytes).
+    Removing main.o(.text.turnoff), (82 bytes).
     Removing main.o(.ARM.exidx.text.turnoff), (8 bytes).
     Removing main.o(.ARM.exidx.text.HAL_TIM_PeriodElapsedCallback), (8 bytes).
     Removing main.o(.ARM.exidx.text.blink), (8 bytes).
@@ -1929,7 +1930,7 @@ Removing Unused input sections from the image.
     Removing system_stm32f4xx.o(.text.SystemCoreClockUpdate), (134 bytes).
     Removing system_stm32f4xx.o(.ARM.exidx.text.SystemCoreClockUpdate), (8 bytes).
 
-929 unused section(s) (total 58898 bytes) removed from the image.
+930 unused section(s) (total 59072 bytes) removed from the image.
 
 ==============================================================================
 
@@ -2140,10 +2141,9 @@ Image Symbol Table
     [Anonymous Symbol]                       0x0800248c   Section        0  stm32f4xx_ll_usb.o(.text.USB_SetCurrentMode)
     [Anonymous Symbol]                       0x080027f4   Section        0  stm32f4xx_it.o(.text.UsageFault_Handler)
     [Anonymous Symbol]                       0x080027f8   Section        0  main.o(.text.blink)
-    [Anonymous Symbol]                       0x08002998   Section        0  main.o(.text.main)
-    [Anonymous Symbol]                       0x08002dec   Section        0  main.o(.text.stateChange)
-    $v0                                      0x08002eb0   Number         0  fpinit.o(x$fpl$fpinit)
-    x$fpl$fpinit                             0x08002eb0   Section       26  fpinit.o(x$fpl$fpinit)
+    [Anonymous Symbol]                       0x080029a8   Section        0  main.o(.text.main)
+    $v0                                      0x08002d74   Number         0  fpinit.o(x$fpl$fpinit)
+    x$fpl$fpinit                             0x08002d74   Section       26  fpinit.o(x$fpl$fpinit)
     .L_MergedGlobals                         0x20000000   Data          48  main.o(.data..L_MergedGlobals)
     [Anonymous Symbol]                       0x20000000   Section        0  main.o(.data..L_MergedGlobals)
     .L_MergedGlobals                         0x20000030   Data           8  stm32f4xx_hal.o(.data..L_MergedGlobals)
@@ -2404,16 +2404,15 @@ Image Symbol Table
     USB_DisableGlobalInt                     0x0800247d   Thumb Code    14  stm32f4xx_ll_usb.o(.text.USB_DisableGlobalInt)
     USB_SetCurrentMode                       0x0800248d   Thumb Code   872  stm32f4xx_ll_usb.o(.text.USB_SetCurrentMode)
     UsageFault_Handler                       0x080027f5   Thumb Code     2  stm32f4xx_it.o(.text.UsageFault_Handler)
-    blink                                    0x080027f9   Thumb Code   414  main.o(.text.blink)
-    main                                     0x08002999   Thumb Code  1106  main.o(.text.main)
-    stateChange                              0x08002ded   Thumb Code   196  main.o(.text.stateChange)
-    _fp_init                                 0x08002eb1   Thumb Code    26  fpinit.o(x$fpl$fpinit)
-    __fplib_config_fpu_vfp                   0x08002ec9   Thumb Code     0  fpinit.o(x$fpl$fpinit)
-    __fplib_config_pureend_doubles           0x08002ec9   Thumb Code     0  fpinit.o(x$fpl$fpinit)
-    AHBPrescTable                            0x08002eca   Data          16  system_stm32f4xx.o(.rodata.AHBPrescTable)
-    APBPrescTable                            0x08002eda   Data           8  system_stm32f4xx.o(.rodata.APBPrescTable)
-    Region$$Table$$Base                      0x08002ee4   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x08002f04   Number         0  anon$$obj.o(Region$$Table)
+    blink                                    0x080027f9   Thumb Code   432  main.o(.text.blink)
+    main                                     0x080029a9   Thumb Code   972  main.o(.text.main)
+    _fp_init                                 0x08002d75   Thumb Code    26  fpinit.o(x$fpl$fpinit)
+    __fplib_config_fpu_vfp                   0x08002d8d   Thumb Code     0  fpinit.o(x$fpl$fpinit)
+    __fplib_config_pureend_doubles           0x08002d8d   Thumb Code     0  fpinit.o(x$fpl$fpinit)
+    AHBPrescTable                            0x08002d8e   Data          16  system_stm32f4xx.o(.rodata.AHBPrescTable)
+    APBPrescTable                            0x08002d9e   Data           8  system_stm32f4xx.o(.rodata.APBPrescTable)
+    Region$$Table$$Base                      0x08002da8   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x08002dc8   Number         0  anon$$obj.o(Region$$Table)
     st_G1R2                                  0x20000000   Data           8  main.o(.data..L_MergedGlobals)
     st_Y1R2                                  0x20000008   Data           8  main.o(.data..L_MergedGlobals)
     st_R1R2                                  0x20000010   Data           8  main.o(.data..L_MergedGlobals)
@@ -2440,9 +2439,9 @@ Memory Map of the image
 
   Image Entry point : 0x080001c5
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00002f48, Max: 0x00080000, ABSOLUTE)
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00002e08, Max: 0x00080000, ABSOLUTE)
 
-    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x00002f04, Max: 0x00080000, ABSOLUTE)
+    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x00002dc8, Max: 0x00080000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -2602,33 +2601,30 @@ Memory Map of the image
     0x0800248c   0x0800248c   0x00000368   Code   RO         1058    .text.USB_SetCurrentMode  stm32f4xx_ll_usb.o
     0x080027f4   0x080027f4   0x00000002   Code   RO           47    .text.UsageFault_Handler  stm32f4xx_it.o
     0x080027f6   0x080027f6   0x00000002   PAD
-    0x080027f8   0x080027f8   0x0000019e   Code   RO           21    .text.blink         main.o
-    0x08002996   0x08002996   0x00000002   PAD
-    0x08002998   0x08002998   0x00000452   Code   RO           11    .text.main          main.o
-    0x08002dea   0x08002dea   0x00000002   PAD
-    0x08002dec   0x08002dec   0x000000c4   Code   RO           15    .text.stateChange   main.o
-    0x08002eb0   0x08002eb0   0x0000001a   Code   RO         1289    x$fpl$fpinit        fz_wm.l(fpinit.o)
-    0x08002eca   0x08002eca   0x00000010   Data   RO         1159    .rodata.AHBPrescTable  system_stm32f4xx.o
-    0x08002eda   0x08002eda   0x00000008   Data   RO         1160    .rodata.APBPrescTable  system_stm32f4xx.o
-    0x08002ee2   0x08002ee2   0x00000002   PAD
-    0x08002ee4   0x08002ee4   0x00000020   Data   RO         1350    Region$$Table       anon$$obj.o
+    0x080027f8   0x080027f8   0x000001b0   Code   RO           21    .text.blink         main.o
+    0x080029a8   0x080029a8   0x000003cc   Code   RO           11    .text.main          main.o
+    0x08002d74   0x08002d74   0x0000001a   Code   RO         1289    x$fpl$fpinit        fz_wm.l(fpinit.o)
+    0x08002d8e   0x08002d8e   0x00000010   Data   RO         1159    .rodata.AHBPrescTable  system_stm32f4xx.o
+    0x08002d9e   0x08002d9e   0x00000008   Data   RO         1160    .rodata.APBPrescTable  system_stm32f4xx.o
+    0x08002da6   0x08002da6   0x00000002   PAD
+    0x08002da8   0x08002da8   0x00000020   Data   RO         1350    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08002f08, Size: 0x00000c68, Max: 0x00020000, ABSOLUTE)
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08002dc8, Size: 0x00000c68, Max: 0x00020000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000000   0x08002f08   0x00000030   Data   RW           29    .data..L_MergedGlobals  main.o
-    0x20000030   0x08002f38   0x00000008   Data   RW          795    .data..L_MergedGlobals  stm32f4xx_hal.o
-    0x20000038   0x08002f40   0x00000004   Data   RW         1158    .data.SystemCoreClock  system_stm32f4xx.o
-    0x2000003c   0x08002f44   0x00000004   PAD
+    0x20000000   0x08002dc8   0x00000030   Data   RW           29    .data..L_MergedGlobals  main.o
+    0x20000030   0x08002df8   0x00000008   Data   RW          795    .data..L_MergedGlobals  stm32f4xx_hal.o
+    0x20000038   0x08002e00   0x00000004   Data   RW         1158    .data.SystemCoreClock  system_stm32f4xx.o
+    0x2000003c   0x08002e04   0x00000004   PAD
     0x20000040        -       0x00000060   Zero   RW         1215    .bss                c_w.l(libspace.o)
     0x200000a0        -       0x0000004c   Zero   RW           30    .bss..L_MergedGlobals.1  main.o
     0x200000ec        -       0x000004e4   Zero   RW           27    .bss.hpcd_USB_OTG_FS  main.o
     0x200005d0        -       0x00000048   Zero   RW           25    .bss.htim7          main.o
     0x20000618        -       0x00000048   Zero   RW           26    .bss.huart3         main.o
     0x20000660        -       0x00000004   Zero   RW          794    .bss.uwTick         stm32f4xx_hal.o
-    0x20000664   0x08002f44   0x00000004   PAD
+    0x20000664   0x08002e04   0x00000004   PAD
     0x20000668        -       0x00000200   Zero   RW            2    HEAP                startup_stm32f446xx.o
     0x20000868        -       0x00000400   Zero   RW            1    STACK               startup_stm32f446xx.o
 
@@ -2640,27 +2636,27 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
-      1928          6          0         48       1472      13359   main.o
+      1616          6          0         48       1472      13435   main.o
         64         26        452          0       1536        880   startup_stm32f446xx.o
-       204          0          0          8          4       7527   stm32f4xx_hal.o
-       196          0          0          0          0      10696   stm32f4xx_hal_cortex.o
-       440          0          0          0          0       5479   stm32f4xx_hal_gpio.o
-       452          0          0          0          0      13260   stm32f4xx_hal_msp.o
-       634          0          0          0          0      17732   stm32f4xx_hal_pcd.o
-        38          0          0          0          0       5318   stm32f4xx_hal_pcd_ex.o
-       432          0          0          0          0       7597   stm32f4xx_hal_rcc.o
-      2240          4          0          0          0      11167   stm32f4xx_hal_rcc_ex.o
-       934          0          0          0          0      55605   stm32f4xx_hal_tim.o
-       190          0          0          0          0      21055   stm32f4xx_hal_tim_ex.o
-       334          0          0          0          0      32135   stm32f4xx_hal_uart.o
-        44          0          0          0          0       4572   stm32f4xx_it.o
-      2630          0          0          0          0      39953   stm32f4xx_ll_usb.o
-        18          0         24          4          0       2769   system_stm32f4xx.o
+       204          0          0          8          4       7520   stm32f4xx_hal.o
+       196          0          0          0          0      10689   stm32f4xx_hal_cortex.o
+       440          0          0          0          0       5472   stm32f4xx_hal_gpio.o
+       452          0          0          0          0      13253   stm32f4xx_hal_msp.o
+       634          0          0          0          0      17725   stm32f4xx_hal_pcd.o
+        38          0          0          0          0       5311   stm32f4xx_hal_pcd_ex.o
+       432          0          0          0          0       7590   stm32f4xx_hal_rcc.o
+      2240          4          0          0          0      11160   stm32f4xx_hal_rcc_ex.o
+       934          0          0          0          0      55598   stm32f4xx_hal_tim.o
+       190          0          0          0          0      21048   stm32f4xx_hal_tim_ex.o
+       334          0          0          0          0      32128   stm32f4xx_hal_uart.o
+        44          0          0          0          0       4565   stm32f4xx_it.o
+      2630          0          0          0          0      39946   stm32f4xx_ll_usb.o
+        18          0         24          4          0       2762   system_stm32f4xx.o
 
     ----------------------------------------------------------------------
-     10856         36        510         60       3020     249104   Object Totals
+     10540         36        510         60       3020     249082   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-        78          0          2          0          8          0   (incl. Padding)
+        74          0          2          0          8          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -2711,15 +2707,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     11526         52        510         60       3116     249512   Grand Totals
-     11526         52        510         60       3116     249512   ELF Image Totals
-     11526         52        510         60          0          0   ROM Totals
+     11210         52        510         60       3116     249490   Grand Totals
+     11210         52        510         60       3116     249490   ELF Image Totals
+     11210         52        510         60          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                12036 (  11.75kB)
+    Total RO  Size (Code + RO Data)                11720 (  11.45kB)
     Total RW  Size (RW Data + ZI Data)              3176 (   3.10kB)
-    Total ROM Size (Code + RO Data + RW Data)      12096 (  11.81kB)
+    Total ROM Size (Code + RO Data + RW Data)      11780 (  11.50kB)
 
 ==============================================================================
 

@@ -133,7 +133,6 @@ int main(void)
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
 	
-  /* USER CODE END 2 */
 	//messed up in cube so just hard set it here
 	__HAL_TIM_SET_PRESCALER(&htim6, 140000-140000-1);
 	__HAL_TIM_SET_PRESCALER(&htim7, 4000-1);
@@ -142,12 +141,17 @@ int main(void)
 	
 	//cute little startup blink 
 	blink();
+	
+  /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    for(int i = 0; i < 6; i++){
+    /* USER CODE END WHILE */
+    /* USER CODE BEGIN 3 */
+		
+		for(int i = 0; i < 6; i++){
 			//loop through states
 			stateChange(&states[i]);
 			//turn lights off
@@ -156,15 +160,16 @@ int main(void)
   }
   /* USER CODE END 3 */
 }
+//User functions
 
 //timer raises an interrupt and goes to this function, set ready = 1 as were ready to progress past while loop
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	if (htim == &htim6 || htim == &htim7)
-    {
+	if (htim == &htim6 || htim == &htim7){
         ready = 1;
     }
 }
+
 
 //state change function
 void stateChange(struct State * currstate){
@@ -210,8 +215,8 @@ void stateChange(struct State * currstate){
 		while(!ready); //wait for timer to end to switch states
 		ready = 0; //ready back to 0
 		
-		
 }
+
 //fn to turn off all lights between state changes 
 void turnoff(void){
 	HAL_GPIO_WritePin(RED1_GPIO_Port, RED1_Pin, 0);
@@ -236,6 +241,10 @@ void blink(){
 	turnoff();
 	
 }
+
+
+
+
 
 
 
@@ -442,16 +451,22 @@ static void MX_GPIO_Init(void)
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GREEN2_GPIO_Port, GREEN2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOF, RED2_Pin|YELLOW2_Pin|GREEN2_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOC, YELLOW1_Pin|GREEN1_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(RED1_GPIO_Port, RED1_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LD1_Pin|LD3_Pin|LD2_Pin, GPIO_PIN_RESET);
@@ -459,22 +474,32 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(USB_PowerSwitchOn_GPIO_Port, USB_PowerSwitchOn_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, YELLOW2_Pin|RED2_Pin|GREEN1_Pin|YELLOW1_Pin
-                          |RED1_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin : GREEN2_Pin */
-  GPIO_InitStruct.Pin = GREEN2_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GREEN2_GPIO_Port, &GPIO_InitStruct);
-
   /*Configure GPIO pin : USER_Btn_Pin */
   GPIO_InitStruct.Pin = USER_Btn_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(USER_Btn_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : RED2_Pin YELLOW2_Pin GREEN2_Pin */
+  GPIO_InitStruct.Pin = RED2_Pin|YELLOW2_Pin|GREEN2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : YELLOW1_Pin GREEN1_Pin */
+  GPIO_InitStruct.Pin = YELLOW1_Pin|GREEN1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : RED1_Pin */
+  GPIO_InitStruct.Pin = RED1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(RED1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LD1_Pin LD3_Pin LD2_Pin */
   GPIO_InitStruct.Pin = LD1_Pin|LD3_Pin|LD2_Pin;
@@ -495,15 +520,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(USB_OverCurrent_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : YELLOW2_Pin RED2_Pin GREEN1_Pin YELLOW1_Pin
-                           RED1_Pin */
-  GPIO_InitStruct.Pin = YELLOW2_Pin|RED2_Pin|GREEN1_Pin|YELLOW1_Pin
-                          |RED1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
