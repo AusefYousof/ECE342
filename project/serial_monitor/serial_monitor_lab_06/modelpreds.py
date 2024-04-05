@@ -14,6 +14,11 @@ import torch.utils.data as data
 from torchvision.datasets import ImageFolder
 from PIL import Image
 import time
+import http.server
+import socketserver
+import webbrowser
+import threading
+
 
 import tkinter as tk
 from tkinter import messagebox
@@ -31,7 +36,32 @@ def show_detection_alert():
     messagebox.showinfo("Detection Alert", "PERSON DETECTED!")  # show an "Info" message box
     root.destroy()
 
+####################
+#WINDOW STUFF
+####################
 
+PORT = 8000
+Handler = http.server.SimpleHTTPRequestHandler
+
+def serve_html(directory='.', port=8000):
+    class SingleFileHTTPRequestHandler(Handler):
+        def do_GET(self):
+            if self.path == '/':
+                self.path = '/alert.html'
+            return super().do_GET()
+
+    Handler = SingleFileHTTPRequestHandler
+    with socketserver.TCPServer(("", port), Handler) as httpd:
+        print(f"Serving at port {port}")
+        httpd.serve_forever()
+
+def open_browser(port=8080):
+    webbrowser.open(f'http://localhost:{port}')
+
+def run_server():
+    server_thread = threading.Thread(target=serve_html, args=('.', PORT), daemon=True)
+    server_thread.start()
+    open_browser(PORT)
 
 
 class PD_CNN(nn.Module):
@@ -60,8 +90,6 @@ class PD_CNN(nn.Module):
         x = self.fc3(x)
         return x
 
-
-
 def load_model(model_path="PD_CNN"):
     model = torch.load(model_path)
     model.eval()  
@@ -79,7 +107,7 @@ def predict(model, img_bytes):
     #to save images (making dataset from scratch)
     ##############################################
     
-    save_dir = "0"
+    save_dir = "1"
     #to save images (making dataset from scratch)
     timestamp = time.strftime("%Y%m%d-%H%M%S")
     image_path = os.path.join(save_dir, f"image_{timestamp}.jpg")
@@ -115,7 +143,7 @@ def predict(model, img_bytes):
         output = model(input_batch)
     
     # Convert output probabilities to predicted class (0 or 1)
-    pred = torch.sigmoid(output).item() > 0.65
+    pred = torch.sigmoid(output).item() > 0.5
     return pred
 
 if __name__ == "__main__":
@@ -129,7 +157,7 @@ if __name__ == "__main__":
     prediction = predict(model, img_bytes)
     #DETECTED! window if person detected
     if prediction:
-        show_detection_alert()
+        run_server()
 
     
     
