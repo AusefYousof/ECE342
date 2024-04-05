@@ -27,6 +27,31 @@ transform = transforms.Compose([
        
     ])
 
+transformations = transforms.Compose([
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomRotation(10),
+    
+])
+
+
+def augment_dataset(dataset, save_dir, transform, num_copies=5):
+    
+    for idx, (image, label) in enumerate(dataset):
+        for copy_number in range(num_copies):
+            # Apply transformation
+            transformed_image = transform(image)
+            
+            # Convert back to PIL image to save to disk
+            pil_image = transforms.ToPILImage()(transformed_image).convert("RGB")
+            
+            # Define save path
+            img_path = os.path.join(save_dir, f"{label}_{idx}_{copy_number}.jpg")
+            
+            # Save the image
+            pil_image.save(img_path)
+
+
+
 
 train_dataset_path =  'project\\human detection dataset\\train'
 val_dataset_path =  'project\\human detection dataset\\val'
@@ -34,6 +59,10 @@ val_dataset_path =  'project\\human detection dataset\\val'
 
 train_dataset = torchvision.datasets.ImageFolder(train_dataset_path, transform=transform)
 val_dataset = torchvision.datasets.ImageFolder(val_dataset_path, transform=transform)
+
+
+
+
 
 #image, label = train_dataset[7]
 
@@ -77,18 +106,27 @@ classes = ['0', '1']
 class PD_CNN(nn.Module):
     def __init__(self):
         super(PD_CNN, self).__init__()
-        self.name = "PD_CNN"
-        self.conv1 = nn.Conv2d(1, 8, kernel_size=3, stride=1, padding=1)  
-        self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
-        self.fc1_input_size = 8 * (174//2) * (144//2)  
-        self.fc1 = nn.Linear(self.fc1_input_size, 128) 
-        self.fc2 = nn.Linear(128, 1)
+        # Increase convolutional layers
+        self.conv1 = nn.Conv2d(1, 16, kernel_size=3, stride=1, padding=1)
+        self.conv2 = nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1)
+        self.conv3 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        # Adaptive Pooling to handle varying dimensions
+        self.adaptive_pool = nn.AdaptiveAvgPool2d((6, 6))
+        # Revise fully connected layers according to new output size
+        self.fc1 = nn.Linear(64 * 6 * 6, 256)
+        self.fc2 = nn.Linear(256, 128)
+        self.fc3 = nn.Linear(128, 1)  # Output layer
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
-        x = x.view(-1, self.fc1_input_size)  
+        x = self.pool(F.relu(self.conv2(x)))
+        x = self.pool(F.relu(self.conv3(x)))
+        x = self.adaptive_pool(x)
+        x = x.view(-1, 64 * 6 * 6)
         x = F.relu(self.fc1(x))
-        x = self.fc2(x)
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
         return x
 
 
@@ -144,7 +182,7 @@ def evaluate(net, loader, criterion):
     loss = float(total_loss) / (i + 1)
     return err, loss
 
-
+#this function is just not good man
 def train(net, batch_size=4, learning_rate=0.005, num_epochs=10):
     
     criterion = nn.BCEWithLogitsLoss()
@@ -216,14 +254,14 @@ def train(net, batch_size=4, learning_rate=0.005, num_epochs=10):
 
 
 
-
+#actual proper training!
 model = PD_CNN()
 criterion = nn.BCEWithLogitsLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=4, shuffle=True)
 val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=4, shuffle=True)
 
-num_epochs = 10
+num_epochs = 15
 for epoch in range(num_epochs):
     for images, labels in train_loader:
         outputs = model(images)
