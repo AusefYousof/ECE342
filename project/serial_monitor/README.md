@@ -1,0 +1,3 @@
+serial_monitor_lab_06 directory contains the .exe prior to streamlining the prediction process, where we call modelpreds.py for each picture, making us load the model every time unnecessarily and making the process of making a prediction super long.
+
+serial_monitor_lab_06_final directory contains the improved executable that streamlines the process by loading the model inside the serial_monitor_lab_06.py and for every image simply sending it to the loaded model resulting in much faster predictions. That code is what is displayed in serialmonitorsourcecoude directory.

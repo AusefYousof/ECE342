@@ -1,3 +1,6 @@
-serial_monitor/serial_monitor_lab_06/PD_CNN
+serial_monitor/serial_monitor_lab_06_final/PD_CNN
+serial_monitor/serial_monitor_lab_06_final/torch/lib/torch_cpu.dll
+serial_monitor/serial_monitor_lab_06_final/torch/lib/dnnl.lib
 human detection dataset/train
 human detection dataset/val
+

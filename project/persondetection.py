@@ -34,7 +34,7 @@ transformations = transforms.Compose([
 ])
 
 
-def augment_dataset(dataset, save_dir, transform, num_copies=5):
+def augment_dataset(dataset, save_dir, transform, num_copies=2):
     
     for idx, (image, label) in enumerate(dataset):
         for copy_number in range(num_copies):
@@ -60,7 +60,10 @@ val_dataset_path =  'project\\human detection dataset\\val'
 train_dataset = torchvision.datasets.ImageFolder(train_dataset_path, transform=transform)
 val_dataset = torchvision.datasets.ImageFolder(val_dataset_path, transform=transform)
 
-
+#augmenting data set
+#augment_dataset(train_dataset, r'project\human detection dataset\train', transformations)
+#augment_dataset(val_dataset, r'project\human detection dataset\val', transformations)
+#print("Done data augmentation")
 
 
 
@@ -78,8 +81,8 @@ val_dataset = torchvision.datasets.ImageFolder(val_dataset_path, transform=trans
 total = len(train_dataset)+len(val_dataset)
 perc_train = str(round(len(train_dataset)/total * 100,2))
 perc_val = str(round(len(val_dataset)/total * 100,2))
-#print("Testing Data is:", perc_train + "% train,", perc_val + "% validation,", perc_test + "% test\n") 
-#looking for about a 75 - 12.5 - 12.5 percent split
+print("Data is:", perc_train + "% train,", perc_val + "% validation\n") 
+
 
 
 
@@ -257,11 +260,11 @@ def train(net, batch_size=4, learning_rate=0.005, num_epochs=10):
 #actual proper training!
 model = PD_CNN()
 criterion = nn.BCEWithLogitsLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
-train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=4, shuffle=True)
-val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=4, shuffle=True)
+optimizer = optim.Adam(model.parameters(), lr=0.0001)
+train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=16, shuffle=True)
+val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=16, shuffle=True)
 
-num_epochs = 15
+num_epochs =16
 for epoch in range(num_epochs):
     for images, labels in train_loader:
         outputs = model(images)
@@ -286,6 +289,8 @@ with torch.no_grad():
 
 print(f'Accuracy of the network on the test images: {100 * correct / total}%')
 torch.save(model, "project\\serial_monitor\\serial_monitor_lab_06\\PD_CNN")
+
+
 
 
 
